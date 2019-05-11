@@ -59,3 +59,12 @@ typings/
 
 # next.js build output
 .next
+
+packages/server/node_modules/
+packages/dashboard/node_modules/
+packages/dashboard/dist/
+packages/dashboard/yarn-error.log
+packages/server/dist/
+
+docker/mailserver/config/
+packages/mail-manager/mail-server-api/dist/

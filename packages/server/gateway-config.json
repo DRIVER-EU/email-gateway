@@ -1,0 +1,12 @@
+{
+    "description": "E-mail gateway",
+	"server": { 
+        "port": 7891
+    },
+    "kafka": {
+        "kafkaHost": "localhost:3501",
+        "schemaRegistryUrl": "localhost:3502",
+        "autoRegisterSchemas": true,
+		 "mediaTopicName": "simulation_entity_post"
+    }
+}

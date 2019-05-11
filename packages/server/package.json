@@ -1,0 +1,28 @@
+{
+  "name": "email-gateway",
+  "version": "1.0.0",
+  "description": "Driver-eu e-mail gateway",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "TNO",
+  "license": "MIT",
+  "dependencies": {
+    "@nestjs/common": "^6.1.1",
+    "@nestjs/core": "^6.1.1",
+    "@nestjs/platform-express": "^6.1.1",
+    "@nestjs/swagger": "^3.0.2",
+    "@types/node": "^11.13.8",
+    "nconf": "^0.10.0",
+    "node-test-bed-adapter": "^0.8.7",
+    "nodemailer": "^6.1.1",
+    "reflect-metadata": "^0.1.13",
+    "rxjs": "^6.5.1"
+  },
+  "devDependencies": {
+    "@types/nodemailer": "^4.6.8",
+    "@types/nodemailer-direct-transport": "^1.0.31",
+    "@types/nodemailer-smtp-transport": "^2.7.4"
+  }
+}
