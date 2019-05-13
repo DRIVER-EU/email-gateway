@@ -4,7 +4,14 @@
   "description": "Driver-eu e-mail gateway",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "build": "tsc -p tsconfig.build.json",
+    "format": "prettier --write \"src/**/*.ts\"",
+    "start": "ts-node -r tsconfig-paths/register src/main.ts",
+    "start:dev": "nodemon",
+    "start:debug": "nodemon --config nodemon-debug.json",
+    "prestart:prod": "rimraf dist && npm run build",
+    "start:prod": "node dist/main.js",
+    "lint": "tslint -p tsconfig.json -c tslint.json"
   },
   "author": "TNO",
   "license": "MIT",
@@ -14,11 +21,17 @@
     "@nestjs/platform-express": "^6.1.1",
     "@nestjs/swagger": "^3.0.2",
     "@types/node": "^11.13.8",
+    "axios": "^0.18.0",
+    "imap": "^0.8.19",
+    "install": "^0.12.2",
     "nconf": "^0.10.0",
     "node-test-bed-adapter": "^0.8.7",
     "nodemailer": "^6.1.1",
+    "portable-fetch": "^3.0.0",
     "reflect-metadata": "^0.1.13",
-    "rxjs": "^6.5.1"
+    "rxjs": "^6.5.1",
+    "ts-node": "^8.1.0",
+    "typescript": "^3.4.5"
   },
   "devDependencies": {
     "@types/nodemailer": "^4.6.8",

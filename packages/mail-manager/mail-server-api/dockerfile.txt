@@ -1,3 +1,5 @@
+# TODO Create build docker image and a production docker image 
+
 
 # Based on debian:stretch-slim
 FROM tvial/docker-mailserver:latest
