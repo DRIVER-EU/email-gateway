@@ -18,6 +18,10 @@ export class ConvertSimEntityToMail {
 
     public GetMailMessage(): MailEnvelop {
         let message = {
+            headers: {
+                'x-gateway-key': 'from kafka',
+               
+            },
             from: this.mailEntity.senderName,
 
             // Comma separated list of recipients
