@@ -1,10 +1,12 @@
 // https://github.com/sahat/Nodemailer
-
+import { IMapSettings } from './../services/mail-service';
 import { Attachment } from 'nodemailer/lib/mailer';
-import { simpleParser, ParsedMail } from "mailparser";
+import { simpleParser, ParsedMail } from 'mailparser';
 import { SendMailOptions as MailEnvelop, } from 'nodemailer';
-import { Box as MailBox, ImapMessage, ImapMessageAttributes, Config as ImapConfig } from "imap";
-import imapConnection = require("imap");
+import { Box as MailBox, ImapMessage, ImapMessageAttributes, Config as ImapConfig } from 'imap';
+import imapConnection = require('imap');
+import { EventEmitter } from 'events';
+
 /*
 In mail message:
 - Sequence number: The oldest message has seq. number 1. The seq. numbers are increased with one. When a mail is 
@@ -18,29 +20,39 @@ the latest mail is returned!
 
 */
 
-export class ReadMail {
+export interface IReadMail {
+
+    on(event: 'NewMail', listener: (mail: ParsedMail) => void): this;
+    on(event: 'Finished', listener: (latestUid: number) => void): this;
+}
+
+export class ReadMail extends EventEmitter implements IReadMail {
 
     private connection: imapConnection;
     private uidLatest: number;
-    constructor(latestMailUid: number = 0) {
+    private highestUid: number;
+    constructor(private imapCfg: IMapSettings, mailaccount: string, mailaccountPwd: string, latestMailUid: number = 0) {
+        super();
+
         this.uidLatest = latestMailUid;
         const cfg: ImapConfig = {
-            user: 'account@b.com',
-            password: 'default',
-            host: 'localhost',
-            port: 993,
+            user: mailaccount,
+            password: mailaccountPwd,
+            host: imapCfg.IMapHost,
+            port: imapCfg.IMapPort,
             tls: true,
             tlsOptions: {
                 rejectUnauthorized: false
             }
         };
+        this.highestUid = latestMailUid;
         this.connection = new imapConnection(cfg);
-        this.connection.once("error", this.ImapConnectionError);
-        this.connection.once("end", this.ImapConnectionClosed);
+        this.connection.once('error', this.ImapConnectionError.bind(this));
+        this.connection.once('end', this.ImapConnectionClosed.bind(this));
         // Once the mail box ready
-        this.connection.once("ready", () => {
+        this.connection.once('ready', () => {
             // Open the INBOX
-            this.connection.openBox("INBOX", false /* readonly */, (err: Error, box: MailBox) => {
+            this.connection.openBox('INBOX', false /* readonly */, (err: Error, box: MailBox) => {
                 if (err) {
                     console.log(err);
                 } else {
@@ -48,12 +60,14 @@ export class ReadMail {
                     try {
                         // Search for new mails (Mails where UID is greater then latest UID)
                         // If the search should return Seq Number use: this.connection.seq.search
-                        const search: string = (this.uidLatest === 0) ? "1:*" /* all mails */ : `{this.latestMailUid+1}:*`;
-                        this.connection.search([["UID", search]], (err1: Error, uidNumbers: number[] /* UID numbers */) => {
+                        const search: string = (this.uidLatest === 0) ? '1:*' /* all mails */ : `${this.uidLatest + 1}:*`;
+                        this.connection.search([['UID', search]], (err1: Error, uidNumbers: number[] /* UID numbers */) => {
                             if ((!uidNumbers) ||
                                 (uidNumbers.length === 1) && (uidNumbers[0] === this.uidLatest)) {
                                 // No new mails found!
+                                this.connection.end();
                             } else {
+                                let NumberOfMsgToProcess = uidNumbers.length;
                                 // Fetch the mail content of the found UIDs
                                 // Use this.connection.seq.fetch to fetch mail by seq number
                                 let fetchRequest = this.connection.fetch(uidNumbers, {
@@ -61,9 +75,10 @@ export class ReadMail {
                                     struct: true
                                 });
                                 // Handle all the mails from fetch command
-                                fetchRequest.on("message", (msg: ImapMessage, seqno: number) => {
+                                fetchRequest.on('message', (msg: ImapMessage, uid: number) => {
+                                    if (uid > this.highestUid) this.highestUid = uid;
                                     // Get the MAIL message (body and headers)
-                                    msg.on("body", (stream: NodeJS.ReadableStream, info: imapConnection.ImapMessageBodyInfo) => {
+                                    msg.on('body', (stream: NodeJS.ReadableStream, info: imapConnection.ImapMessageBodyInfo) => {
                                         // simpleParser is used to convert stream into mail message (with attachments)
                                         // See https://nodemailer.com/extras/mailparser/
                                         simpleParser(stream, (mailError: any, mail: ParsedMail) => {
@@ -72,6 +87,8 @@ export class ReadMail {
                                             } else {
                                                 this.HandleNewMail(mail)
                                             }
+                                            NumberOfMsgToProcess--;
+                                            if (NumberOfMsgToProcess===0) this.connection.end();
                                         });
                                     });
                                     /*
@@ -87,11 +104,12 @@ export class ReadMail {
                                     */
                                 });
                                 //  When there is an error in fetching mails
-                                fetchRequest.on("error", (error: Error) => {
+                                fetchRequest.on('error', (error: Error) => {
                                     this.connection.end();
                                 });
-                                fetchRequest.once("end", () => {
-                                    this.connection.end();
+                                fetchRequest.once('end', () => {
+                                    // The fetch is finished, but the mailParser could still be busy parsing the mail
+                                    
                                 });
                             }
                         });
@@ -104,20 +122,24 @@ export class ReadMail {
     }
 
     private ImapConnectionError(error: any) {
-
+        this.TriggerFinishedEvent();
     }
 
     private ImapConnectionClosed() {
+        this.TriggerFinishedEvent();
+    }
 
+    private TriggerFinishedEvent() {
+        this.emit('Finished', this.highestUid);
     }
 
 
-    public ReadMailBox() {
+    public StartProcessing() {
         this.connection.connect();
     }
 
     private HandleNewMail(mail: ParsedMail): void {
-
+        this.emit('NewMail', mail);
     }
 
     /*

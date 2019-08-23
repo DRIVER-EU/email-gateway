@@ -1,23 +1,22 @@
 import { ReadMail } from './../helpers/read-mail';
 
-
 // Services:
 import { IConfigService } from './config-service';
 import { ILogService } from './log-service';
-import { ITestBedKafkaService } from './test-bed-kafka-service'
-import { ISimulationEntityPost, MediumTypes } from './../models/simulation-entity-post'
+import { ITestBedKafkaService } from './test-bed-kafka-service';
+import { IPostfixMailServerManagementService } from './postfix-mailserver-management';
+import { ISimulationEntityPost, MediumTypes } from './../models/simulation-entity-post';
 
-import * as nodemailer from "nodemailer";
+import * as nodemailer from 'nodemailer';
 
 import { Transporter, Transport, SendMailOptions as MailEnvelop } from 'nodemailer';
-import { Options as SmtpOptions } from 'nodemailer/lib/smtp-transport'
+import { Options as SmtpOptions } from 'nodemailer/lib/smtp-transport';
+import { simpleParser, ParsedMail } from 'mailparser';
+import { mailAddressConverter } from './../helpers/mailAdressesConverter';
 
 
-
-import { MailManagementApi, Configuration, MailAccountsResult } from './../generated_rest_api/index';
-import { MAILSERVER_BASE_PATH } from './../config';
 import { ConvertSimEntityToMail } from './../helpers/convert-sim-entity-to-mail';
-
+import { EventEmitter } from 'events';
 
 
 // https://community.nodemailer.com/
@@ -30,54 +29,90 @@ export interface IMailSettings {
   SmtpPassword: string;
 }
 
+export interface IMapSettings {
+  IMapHost: string;
+  IMapPort: number;
+}
+
+
 export interface IMailService {
 
 }
+
 const axios = require('axios');
+
+export interface IMailboxStatus {
+  latestUid: number;
+}
 
 export class MailService implements IMailService {
 
+  private mailBoxes = new Map<string, IMailboxStatus>();
+  private checkingMailboxes: ReadMail[] = [];
+
   private smtpConnection: Transporter;
   private settings: IMailSettings;
-  private restClient: MailManagementApi;
+
 
   constructor(
     private logService: ILogService,
     private configService: IConfigService,
-    private kafkaService: ITestBedKafkaService) {
+    private kafkaService: ITestBedKafkaService,
+    private postfixService: IPostfixMailServerManagementService) {
     this.settings = configService.MailSettings;
-    
 
-    //const lst = mailAddressParser();
 
-    const url = MAILSERVER_BASE_PATH;
-    this.restClient = new MailManagementApi(undefined, url, undefined);
-   
-    this.kafkaService.on("SimulationEntityPostMsg", msg => this.HandleSimulationEntityPostMsg(msg));
+    // const lst = mailAddressParser();
+
+
+
+    this.kafkaService.on('SimulationEntityPostMsg', msg => this.HandleSimulationEntityPostMsg(msg));
     this.InitializeSmtpConnection()
       .then(() => {
-        logService.LogMessage("Connected to the mail-sever");
+        logService.LogMessage('Connected to the mail-sever');
       })
       .catch(err => {
-        logService.LogErrorMessage("Failed to connected to the mail-sever");
+        logService.LogErrorMessage('Failed to connected to the mail-sever');
 
       });
 
-this.GetMail();
+    this.GetMail('demo@driver.eu');
 
   }
 
+  rm: ReadMail;
+  private GetMail(accountName: string) {
+    // var mailBox = this.mailBoxes.get(simItem.guid);
+    // if (mailBox) {
 
-  private GetMail() {
-    const rm = new ReadMail();
-    rm.ReadMail();
+    // } else {
 
+    // }
+    // this.simulationItems.set( simItem.guid, simItem);
+
+
+    this.rm = new ReadMail(this.configService.IMapSettings, accountName, 'demo', 1);
+    this.rm.on('NewMail', (mail: ParsedMail) => {
+
+      if (mail.attachments) {
+        for (let i = 0; i < mail.attachments.length; i += 1) {
+          let attachment = mail.attachments[i];
+        }
+      }
+    });
+    this.rm.on('Finished', (uid: number) => {
+      console.log(uid);
+      this.rm.removeAllListeners();
+      // this.checkingMailboxes = this.checkingMailboxes.filter(obj => obj !== this.rm);
+      delete this.rm;
+    });
+
+    this.rm.StartProcessing();
   }
 
 
   public async GetAccounts() {
-    const result = await this.restClient.mailAccounts();
-    console.log(result);
+    const result = await this.postfixService.mailAccounts();
     return result;
   }
 
@@ -88,28 +123,37 @@ this.GetMail();
   }
 
 
+
+  private async sendMail(mail: MailEnvelop) {
+    try {
+      
+      if (mail.to)
+         this.postfixService.addEMailAddresses(mailAddressConverter(mail.to));
+      let info = await this.smtpConnection.sendMail(convertToMail.GetMailMessage(), function (err: any, info: any) {
+        if (err)
+          console.log(err);
+        else
+          console.log(info);
+      });
+    } catch (e) {
+      this.logService.LogErrorMessage(`Failed to send message ${msg.guid}`);
+    }
+  }
+
   private async mailSimulationEntityPost(msg: ISimulationEntityPost) {
 
     let convertToMail = new ConvertSimEntityToMail(msg);
     try {
       convertToMail.CheckRequiredFields();
-      const mailAccounts = await this.restClient.mailAccounts();
-      
-      convertToMail.ToMailAccounts().forEach(mailAddress =>
-        {
-          if (!mailAccounts.Accounts.includes(mailAddress)) {
-            this.logService.LogMessage(`Add mail account ${mailAddress} to mailserver`);
-            this.restClient.addAccount(mailAddress, "default");
-          }
-        });
-      let info = await this.smtpConnection.sendMail(convertToMail.GetMailMessage(), function (err: any, info: any) {
+      this.postfixService.addEMailAddresses(convertToMail.ToMailAccounts());
+      let info = await this.smtpConnection.sendMail(convertToMail.GetMailMessage(),
+         function (err: any, info: any) {
         if (err)
-          console.log(err)
+          console.log(err);
         else
           console.log(info);
       });
-    } catch(e) 
-    {
+    } catch (e) {
       this.logService.LogErrorMessage(`Failed to send message ${msg.guid}`);
     }
 
@@ -122,7 +166,7 @@ this.GetMail();
     const options: SmtpOptions = {
       host: this.settings.SmtpHost,
       port: this.settings.SmtpPort,
-      secure: false,// use TLS
+      secure: false, // use TLS
       requireTLS: true,
       auth: {
         user: this.settings.SmtpUser,
@@ -147,9 +191,9 @@ this.GetMail();
   // Callback for nodemailer when connected to SMTP server
   private OnConnectedToSmtpServer(error: Error | null, success: boolean): void {
     if (success) {
-      this.logService.LogMessage("Connected to SMTP server");
+      this.logService.LogMessage('Connected to SMTP server');
     } else {
-      const errMessage = error ? error : "no error message";
+      const errMessage = error ? error : 'no error message';
       this.logService.LogErrorMessage(`Failed to connect to SMTP server: ${errMessage}`);
     }
   }

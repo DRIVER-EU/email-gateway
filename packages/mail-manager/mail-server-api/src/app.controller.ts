@@ -33,19 +33,19 @@ export class AppController {
   @ApiOperation({
     title: 'Add mail account',
     description: 'Add mail account to mail server (e.g. "user@world.com") ',
-    operationId: 'AddAccount'
+    operationId: 'AddAccount',
   })
   @ApiImplicitQuery({
-    name: "account",
-		description: "The mail account",
-		required: true,
-		type: String
+    name: 'account',
+description: 'The mail account',
+required: true,
+type: String,
   })
   @ApiImplicitQuery({
     name: "password",
 		description: "The mail account password",
 		required: true,
-		type: String
+		type: String,
   })
   @ApiResponse({
     status: 200,
@@ -53,7 +53,7 @@ export class AppController {
     type: AddMailAccountResult
   })
   @Post('AddMailAccount')
-  async AddMailAccount(@Query("account") account : string, @Query("password") password : string): Promise<AddMailAccountResult> {
+  async AddMailAccount(@Query("account") account : string, @Query('password') password : string): Promise<AddMailAccountResult> {
     if (this.appService === null) throw new Error("Not initialized (yet)");
     return await this.appService.AddMailAccount(account, password);
   }

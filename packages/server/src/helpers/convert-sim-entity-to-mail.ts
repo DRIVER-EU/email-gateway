@@ -1,7 +1,7 @@
 import { ISimulationEntityPost } from './../models/simulation-entity-post';
 import { SendMailOptions as MailEnvelop } from 'nodemailer';
-import { Attachment } from "nodemailer/lib/mailer";
-import mailAddressesParser = require("nodemailer/lib/addressparser");
+import { Attachment } from 'nodemailer/lib/mailer';
+import mailAddressesParser = require('nodemailer/lib/addressparser');
 
 export class ConvertSimEntityToMail {
 
@@ -20,7 +20,6 @@ export class ConvertSimEntityToMail {
         let message = {
             headers: {
                 'x-gateway-key': 'from kafka',
-               
             },
             from: this.mailEntity.senderName,
 
@@ -35,7 +34,7 @@ export class ConvertSimEntityToMail {
             text: this.mailEntity.body,
 
             // HTML body
-            html:"",
+            html: '',
 
             // An array of attachments
             attachments: this.GetAttachments()
@@ -60,15 +59,14 @@ export class ConvertSimEntityToMail {
     private ConvertFileToAttachement(fileName: string, contentBase64: string): Attachment {
         const attachment: Attachment = {
             filename: fileName,
-            content: Buffer.from(contentBase64,'base64'),
+            content: Buffer.from(contentBase64, 'base64'),
             contentType: 'text/plain'
-        }
+        };
         return attachment;
     }
 
-    public ToMailAccounts() : string[]
-    {
-        let mailAddresses : string[] = [];
+    public ToMailAccounts(): string[] {
+        let mailAddresses: string[] = [];
         if (this.mailEntity.recipients)
            this.mailEntity.recipients.forEach(item => mailAddressesParser(item).forEach(mailAddress => mailAddresses.push(mailAddress.address)));
         return mailAddresses;

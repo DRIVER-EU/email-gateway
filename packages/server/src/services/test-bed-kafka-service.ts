@@ -1,16 +1,16 @@
 import { EventEmitter } from 'events';
 import { TestBedAdapter, Logger, LogLevel, IAdapterMessage } from 'node-test-bed-adapter';
-import { ISimulationEntityPost } from './../models/simulation-entity-post'
+import { ISimulationEntityPost } from './../models/simulation-entity-post';
 import { ProduceRequest } from 'kafka-node';
 
-// Services: 
+// Services:
 import { IConfigService } from './config-service';
 import { ILogService } from './log-service';
 import { emit } from 'cluster';
 
 // AVRO kafka schema's
 
-var path = require("path");
+let path = require('path');
 
 // Configuration settings for this service
 export interface ITestBedAdapterSettings {
@@ -26,8 +26,8 @@ export interface ITestBedKafkaService {
   on(event: 'SimulationEntityPostMsg', listener: (media: ISimulationEntityPost) => void): this;
   on(event: 'ready', listener: () => void): this;
   ConnectToKafka(): void;
-  Settings: ITestBedAdapterSettings;  
-  send(posts: ISimulationEntityPost | ISimulationEntityPost[]) : void;
+  Settings: ITestBedAdapterSettings;
+  send(posts: ISimulationEntityPost | ISimulationEntityPost[]): void;
 }
 
 export class TestBedKafkaService extends EventEmitter implements ITestBedKafkaService {
@@ -41,7 +41,7 @@ export class TestBedKafkaService extends EventEmitter implements ITestBedKafkaSe
     private configService: IConfigService) {
     super();
 
-    const schemaPath = path.normalize(path.join(__dirname, "/../../../schemas/avro-schemas"));
+    const schemaPath = path.normalize(path.join(__dirname, '/../../../schemas/avro-schemas'));
 
     this.kafkaSettings = this.configService.KafkaSettings;
     this.logService.LogMessage(`Connect to KAFA:`);
@@ -52,7 +52,7 @@ export class TestBedKafkaService extends EventEmitter implements ITestBedKafkaSe
     this.logService.LogMessage(`- Client ID       ${this.kafkaSettings.kafkaClientId}`);
     this.logService.LogMessage(`- Media topic     ${this.kafkaSettings.mediaTopicName}`);
 
-    
+
     this.adapter = new TestBedAdapter({
       kafkaHost: this.kafkaSettings.kafkaHost,
       schemaRegistry: this.kafkaSettings.schemaRegistryUrl,
@@ -80,7 +80,7 @@ export class TestBedKafkaService extends EventEmitter implements ITestBedKafkaSe
   }
 
   public ConnectToKafka(): void {
-    this.adapter.connect();
+    // this.adapter.connect();
   }
 
   public get Settings() {
@@ -95,7 +95,7 @@ export class TestBedKafkaService extends EventEmitter implements ITestBedKafkaSe
     // Check topic name:
     switch (message.topic.toLowerCase()) {
       case this.Settings.mediaTopicName.toLowerCase():
-        this.emit("SimulationEntityPostMsg", message.value as ISimulationEntityPost);
+        this.emit('SimulationEntityPostMsg', message.value as ISimulationEntityPost);
         break;
       default:
         this.logService.LogMessage(`Unknown topic {message.topic} in kafka bus.`);
@@ -104,7 +104,7 @@ export class TestBedKafkaService extends EventEmitter implements ITestBedKafkaSe
   }
 
   public send(posts: ISimulationEntityPost | ISimulationEntityPost[]) {
-    
+
       if (!(posts instanceof Array)) {
         posts = [posts];
       }
@@ -123,6 +123,6 @@ export class TestBedKafkaService extends EventEmitter implements ITestBedKafkaSe
           }
         });
       });
-  
+
   }
 }

@@ -1,0 +1,23 @@
+
+<br>
+<br>
+<br>
+<form [formGroup]="mailForm" (ngSubmit)="onSubmit(mailForm.value)">
+
+    <div>
+      <label for="from">
+        Name
+      </label>
+      <input id="from" type="text" formControlName="from">
+    </div>
+  
+    <div>
+      <label for="to">
+        Address
+      </label>
+      <input id="to" type="text" formControlName="to">
+    </div>
+  
+    <button class="button" type="submit">Send mail</button>
+  
+  </form>

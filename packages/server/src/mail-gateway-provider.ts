@@ -1,9 +1,9 @@
 
-import { ILogService, LogService } from "./services/log-service";
-import { IMailService, MailService } from "./services/mail-service"; 
-import { IConfigService, ConfigService } from "./services/config-service";
-import { ITestBedKafkaService, TestBedKafkaService } from "./services/test-bed-kafka-service";
-import { posts } from "./testdata"
+import { ILogService, LogService } from './services/log-service';
+import { IMailService, MailService } from './services/mail-service'; 
+import { IConfigService, ConfigService } from './services/config-service';
+import { ITestBedKafkaService, TestBedKafkaService } from './services/test-bed-kafka-service';
+import { posts } from './testdata'
 
 /*
 
@@ -28,9 +28,8 @@ export class MailGatewayProvider {
         this.configService = new ConfigService();
         this.kafkaTestBedService = new TestBedKafkaService(this.logService, this.configService);
         this.mailGatewayService = new MailService(this.logService, this.configService, this.kafkaTestBedService);
-        this.kafkaTestBedService.on('ready', () => 
-        {
-            console.log("");
+        this.kafkaTestBedService.on('ready', () => {
+            console.log('');
             this.kafkaTestBedService.send(posts);
         });
         this.kafkaTestBedService.ConnectToKafka();

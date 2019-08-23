@@ -1,7 +1,7 @@
 
 import { EventEmitter } from 'events';
 import { ITestBedAdapterSettings } from './test-bed-kafka-service'
-import { IMailSettings } from './mail-service';
+import { IMailSettings, IMapSettings } from './mail-service';
 
 /* 
 
@@ -22,6 +22,7 @@ const fs = require('fs')
 export interface IConfigService {
     MailSettings: IMailSettings;
     KafkaSettings: ITestBedAdapterSettings;
+    IMapSettings : IMapSettings;
     NestServerPortNumber : number;
 }
 
@@ -107,4 +108,14 @@ export class ConfigService extends EventEmitter implements IConfigService {
       };
       return result;
   }
+
+  get IMapSettings() : IMapSettings {
+    var result: IMapSettings =
+    {
+        IMapHost:  nconf.get('mail:IMapHost') || "localhost",
+        IMapPort:  nconf.get('mail:IMapPort') || "993"
+
+    };
+    return result;
+}
 }
