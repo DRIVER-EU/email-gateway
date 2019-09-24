@@ -1,7 +1,8 @@
+import { Statusresult } from './../generated_rest_api/api';
 import { Injectable } from '@angular/core';
-import { MAILGATEWAY_BASE_PATH } from './../Config';
 import { Configuration, ManagementApi, MailData, MailAccountsResultImpl,
   DeleteMailAccountResultImpl, AddMailAccountResultImpl, ResetResultImpl } from './../generated_rest_api/index';
+import { environment } from '../environments/environment';
 
 @Injectable({
   providedIn: 'root'
@@ -9,7 +10,8 @@ import { Configuration, ManagementApi, MailData, MailAccountsResultImpl,
 export class GatewayMailServerService {
   private restClient: ManagementApi;
   constructor() {
-    const url = MAILGATEWAY_BASE_PATH;
+    const url = environment.serverRestApiUrl.replace(/\/+$/, '');
+    console.log(`Mail API REST url ${url}`);
     this.restClient = new ManagementApi(undefined, url, undefined);
   }
 
@@ -29,5 +31,9 @@ export class GatewayMailServerService {
   }
   public async reset(): Promise<ResetResultImpl> {
     return this.restClient.reset();
+  }
+
+  public async getServerStatus(): Promise<Statusresult> {
+    return this.restClient.getStatus();
   }
 }

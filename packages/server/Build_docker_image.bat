@@ -1,1 +1,2 @@
-docker build -t mailgatewayserver .
+docker build -t mailgateway .
+pause

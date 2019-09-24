@@ -38,11 +38,12 @@ export class ReadMail extends EventEmitter implements IReadMail {
     private connection: imapConnection;
     private uidLatest: number;
     private highestUid: number;
+    private connectionCfg: ImapConfig;
     constructor(private imapCfg: IMapSettings, mailaccount: string, mailaccountPwd: string, latestMailUid: number = 0) {
         super();
 
         this.uidLatest = latestMailUid;
-        const cfg: ImapConfig = {
+        this.connectionCfg = {
             user: mailaccount,
             password: mailaccountPwd,
             host: imapCfg.IMapHost,
@@ -53,7 +54,7 @@ export class ReadMail extends EventEmitter implements IReadMail {
             }
         };
         this.highestUid = latestMailUid;
-        this.connection = new imapConnection(cfg);
+        this.connection = new imapConnection( this.connectionCfg);
         this.connection.once('error', this.ImapConnectionError.bind(this));
         this.connection.once('end', this.ImapConnectionClosed.bind(this));
         // Once the mail box ready
@@ -284,36 +285,5 @@ export class ReadMail extends EventEmitter implements IReadMail {
     }
 
 
-
-    /*
-    //const fullFilePath = path.join(workspace, dir, fileName);
-
-                                            const emailEnvelop: MailEnvelop = {
-                                                from: mail.from.text,
-                                                to: mail.to.text,
-                                                date: mail.date,
-                                                subject: mail.subject,
-                                                text: mail.text,
-                                                attachments: new Array<Attachment>()
-                                            };
-
-
-
-                                            // write attachments
-                                            if (mail.attachments) {
-                                                for (let i = 0; i < mail.attachments.length; i += 1) {
-
-                                                    const attachment = mail.attachments[i];
-
-                                                    const { filename } = attachment;
-
-                                                   // if (emailEnvelop.attachments) emailEnvelop.attachments.push(filename);
-
-                                                    //fs.writeFileSync(path.join(workspace, dir, filename), attachment.content, ‘base64’); // take encoding from attachment ?
-
-                                                }
-
-                                            }
-                                            */
 
 }

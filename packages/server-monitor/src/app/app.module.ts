@@ -15,9 +15,10 @@ import { MatCheckboxModule} from '@angular/material/checkbox';
 import { MatListModule } from '@angular/material/list';
 import { LogViewerComponent } from './log-viewer/log-viewer.component';
 import { UserManagementComponent } from './user-management/user-management.component';
+import { ServerStatusComponent } from './server-status/server-status.component';
+import { environment } from '../environments/environment';
 
-
-const config: SocketIoConfig = { url: 'http://localhost:9996', options: {}};
+const config: SocketIoConfig = { url: environment.notificationUrl , options: {}};
 
 @NgModule({
   declarations: [
@@ -25,7 +26,8 @@ const config: SocketIoConfig = { url: 'http://localhost:9996', options: {}};
     NavigationbarComponent,
     SendTestMailComponent,
     LogViewerComponent,
-    UserManagementComponent
+    UserManagementComponent,
+    ServerStatusComponent
   ],
   imports: [
     BrowserAnimationsModule, MatButtonModule, MatCheckboxModule, MatListModule,

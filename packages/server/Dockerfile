@@ -12,4 +12,8 @@ COPY --from=builder /build/dist /app/dist
 COPY --from=builder /build/node_modules /app/dist/node_modules
 # COPY --from=builder /build/ /app/build
 WORKDIR /app
-CMD ["node dist/src/index.js"]
+# Web socket notifications
+EXPOSE 9996
+# REST interface
+EXPOSE 7891
+CMD ["node", "dist/src/index.js"]

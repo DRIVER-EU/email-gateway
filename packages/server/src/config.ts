@@ -1,1 +1,1 @@
-export const MAILSERVER_BASE_PATH = "http://localhost:3000".replace(/\/+$/, "");
+// export const MAILSERVER_BASE_PATH = "http://localhost:3000".replace(/\/+$/, "");

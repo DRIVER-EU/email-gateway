@@ -22,6 +22,16 @@ export class MailData {
     public Content: string;
 }
 
+export class Statusresult {
+
+    constructor(status: string) {
+        this.StatusAsJson = status;
+    }
+
+    @ApiModelProperty({ required: true })
+    public StatusAsJson: string;
+}
+
 
 export class MailAccountsResultImpl implements MailAccountsResult {
     @ApiModelProperty({ required: true, isArray: true, type: String })

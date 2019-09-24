@@ -27,6 +27,9 @@ services:
     - "587:587"
     - "993:993"
     - "3000:3000"
+    build:
+      context: ./../../packages/mail-manager/mail-server-api
+      dockerfile: Dockerfile
     networks:
       static-network:
         ipv4_address: 10.5.0.5
@@ -105,6 +108,49 @@ services:
     cap_add:
     - NET_ADMIN
     - SYS_PTRACE
+    restart: always
+  mailgateway:
+    image: mailgateway
+    container_name: mailgateway
+    build:
+      context: ./../../packages/server
+      dockerfile: Dockerfile    
+    ports:
+    - "9996:9996"
+    - "7891:7891"
+    environment:
+    - ApiMailServerUrl=http://10.5.0.5:3000
+    - LargeFileServiceUrl=http://localhost:9090/upload
+    - SmtpHost=10.5.0.5
+    - SmtpPort=25
+    - IMapHost=10.5.0.5
+    - IMapPort=993
+    - kafka_kafkaHost=localhost:3501
+    - kafka_schemaRegistryUrl=localhost:3502
+    - kafka_mediaTopicName=Media
+    depends_on:
+    - mailserver
+    links:
+      - mailserver    
+    networks:
+      static-network:
+        ipv4_address: 10.5.0.10   
+    restart: always
+  mailmonitor:
+    image: mailmonitor
+    container_name: mailmonitor
+    build:
+      context: ./../../packages/server-monitor
+      dockerfile: Dockerfile       
+    ports:
+    - "4200:4200"
+    links:
+    - mailgateway
+    depends_on:
+    - mailgateway
+    networks:
+      static-network:
+        ipv4_address: 10.5.0.11  
     restart: always
 volumes:
   maildata:

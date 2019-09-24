@@ -25,6 +25,7 @@ export interface IConfigService {
     IMapSettings: IMapSettings;
     NestServerPortNumber: number;
     LargFileServiceUrl: string;
+    ApiMailServerUrl: string;
 }
 
 export class ConfigService extends EventEmitter implements IConfigService {
@@ -88,7 +89,11 @@ export class ConfigService extends EventEmitter implements IConfigService {
     }
 
     get LargFileServiceUrl(): string {
-      return nconf.get('server:LargeFileServiceUrl') || 'http://localhost:9090/upload';
+      return nconf.get('LargeFileServiceUrl') || nconf.get('server:LargeFileServiceUrl') || 'http://localhost:9090/upload';
+    }
+
+    get ApiMailServerUrl(): string {
+      return nconf.get('ApiMailServerUrl') || nconf.get('server:ApiMailServerUrl') || 'http://localhost:3000';
     }
 
     get KafkaSettings(): ITestBedAdapterSettings {
@@ -104,8 +109,8 @@ export class ConfigService extends EventEmitter implements IConfigService {
 
     get SmtpSettings(): ISmtpSettings {
       let result: ISmtpSettings = {
-          SmtpHost:  nconf.get('mail:SmtpHost') || 'localhost',
-          SmtpPort:  nconf.get('mail:SmtpPort') || '25',
+          SmtpHost:  nconf.get('SmtpHost') || nconf.get('mail:SmtpHost') || 'localhost',
+          SmtpPort:  nconf.get('SmtpPort') || nconf.get('mail:SmtpPort') || '25',
 
       };
       return result;
@@ -113,8 +118,8 @@ export class ConfigService extends EventEmitter implements IConfigService {
 
   get IMapSettings(): IMapSettings {
     let result: IMapSettings = {
-        IMapHost:  nconf.get('mail:IMapHost') || 'localhost',
-        IMapPort:  nconf.get('mail:IMapPort') || '993'
+        IMapHost:   nconf.get('IMapHost') || nconf.get('mail:IMapHost') || 'localhost',
+        IMapPort:   nconf.get('IMapPort') || nconf.get('mail:IMapPort') || '993'
 
     };
     return result;

@@ -6,7 +6,7 @@ import { ITestBedKafkaService, TestBedKafkaService } from './services/test-bed-k
 import { posts } from './testdata';
 import { IPostfixMailServerManagementService, PostfixMailServerManagementService } from './services/postfix-mailserver-management';
 import { INotificationService, NotificationService } from './services/notification-service';
-
+import * as npmPackage from './../package.json';
 import { NestExpressApplication } from '@nestjs/platform-express';
 /*
 The GeofencerProvider creates all services (all services are event driven).
@@ -24,6 +24,8 @@ export class MailGatewayProvider {
     private kafkaTestBedService: ITestBedKafkaService;
     private postfixService: IPostfixMailServerManagementService;
     private notificationService: INotificationService;
+
+    private serverStarted = new Date();
 
     constructor() {
         // Setup services:
@@ -65,6 +67,33 @@ export class MailGatewayProvider {
 
     get NotificationService() {
         return this.notificationService;
+    }
+
+    public GetStatus(): any {
+        const smtpCfg = this.ConfigService.SmtpSettings;
+        const imapCfg = this.ConfigService.IMapSettings;
+        const kafkaCfg = this.ConfigService.KafkaSettings;
+        return {
+             service: {
+                 package: npmPackage.name,
+                 version: npmPackage.version,
+                 description: npmPackage.description
+             },
+             server: {
+                 largeFileServiceUrl: this.ConfigService.LargFileServiceUrl,
+                 mailserverApiUrl: this.ConfigService.ApiMailServerUrl,
+                 serverRestPort: this.ConfigService.NestServerPortNumber
+             },
+             smtp: smtpCfg,
+             imap: imapCfg,
+             kafka: kafkaCfg,
+             status: {
+                 serverstarted: this.serverStarted,
+                 connectedToKafka: this.TestBedKafkaService.isConnectedToKafka,
+                 receivedKafkaPost: this.TestBedKafkaService.numberOfReceivedSimEnityPost,
+                 sendKafkaPost: this.TestBedKafkaService.numberOfSendSimEnityPost
+             }
+        };
     }
 
 }

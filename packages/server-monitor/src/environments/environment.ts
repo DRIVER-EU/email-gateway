@@ -3,7 +3,9 @@
 // The list of file replacements can be found in `angular.json`.
 
 export const environment = {
-  production: false
+  production: false,
+  notificationUrl: 'http://localhost:9996',
+  serverRestApiUrl: 'http://localhost:7891'
 };
 
 /*

@@ -1,0 +1,10 @@
+<br>
+<br>
+<br>
+<div [hidden]="!showErrorMessage">
+    <div class="alert alert-danger">
+      {{errorMessage}}
+    </div>
+  </div>
+<button (click)="refresh()">Refresh</button>
+<pre>{{status | json}}</pre>

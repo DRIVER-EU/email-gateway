@@ -12,19 +12,18 @@
         <form  [formGroup]="addAccountForm" (ngSubmit)="onSubmit(addAccountForm.value)">
             <div>
               <label for="accountName">
-                E-mail address
-              </label>
-              <br>
+                E-mail address  
+              </label>             
               <input id="accountName" type="text" formControlName="accountName">
             </div>
-          <br>
+          
            <button class="button" type="submit">Add mail account</button>
         </form>
      </div>  
      <hr>
 <mat-list>
     <mat-list-item *ngFor="let account of mailAccounts">
-        <button (click)="deleteAccount(account)">DEL</button>&nbsp;  {{account}}
+        <button (click)="openAccount(account)">Open {{account}}</button> &nbsp; <button (click)="deleteAccount(account)">DEL</button>
     </mat-list-item>
 </mat-list>
 <br>

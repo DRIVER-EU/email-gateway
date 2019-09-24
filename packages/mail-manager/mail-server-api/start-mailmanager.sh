@@ -1,4 +1,7 @@
 #!/bin/bash
-addmailuser demo@driver.eu demo
+
+#One e-mail address is mandatory
+addmailuser admin@driver.eu default
+
 npm run start:prod
  

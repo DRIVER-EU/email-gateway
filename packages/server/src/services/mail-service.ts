@@ -58,12 +58,23 @@ export class MailService implements IMailService {
     private configService: IConfigService,
     private kafkaService: ITestBedKafkaService,
     private postfixService: IPostfixMailServerManagementService) {
+
+    logService.LogMessage(`Start e-mail service`);
+
+
+    const smtp = configService.SmtpSettings;
+    logService.LogMessage(`SMTP connetion parameters ${smtp.SmtpHost}@${smtp.SmtpPort}`);
+    const imap = configService.IMapSettings;
+    logService.LogMessage(`IMAP connetion parameters ${imap.IMapHost}@${imap.IMapPort}`);
+
     this.exportToMailManager = new SimEntityPost2MailServerManager(this.logService, this.configService, this.postfixService);
     this.exportToKafkaManager = new MailServer2SimEntityPostManager(this.logService, this.configService, this.postfixService);
     this.kafkaService.on('SimulationEntityPostMsg', msg => this.HandleSimulationEntityPostMsg(msg));
     this.exportToKafkaManager.on('OnPost', post => this.handleKafkaPostMsg(post));
     this.exportToMailManager.start(); // Background task to copy SimEntityPost to the mail server
     this.exportToKafkaManager.start(); // Background task to copy e-mails to SimEntityPost
+
+
 
     // this.exportToMailManager.enqueue(testPost);
 

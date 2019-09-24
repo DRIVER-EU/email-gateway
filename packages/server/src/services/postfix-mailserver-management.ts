@@ -1,6 +1,6 @@
 import { AddMailAccountResult, DeleteMailAccountResult, ResetResult } from './../../swagger_codegenerator/generated_code/api';
 import { MailManagementApi, Configuration, MailAccountsResult } from './../generated_rest_api/index';
-import { MAILSERVER_BASE_PATH } from './../config';
+// import { MAILSERVER_BASE_PATH } from './../config';
 import mailAddressesParser = require('nodemailer/lib/addressparser');
 import { Address  } from 'nodemailer/lib/mailer';
 import { mailAddressConverter } from './../helpers/mailAdressesConverter';
@@ -28,7 +28,9 @@ export class PostfixMailServerManagementService implements IPostfixMailServerMan
     constructor(
         private logService: ILogService,
         private configService: IConfigService) {
-        const url = MAILSERVER_BASE_PATH;
+        const url = configService.ApiMailServerUrl.replace(/\/+$/, '');
+        logService.LogMessage(`Use url '${url}' mail server api.`);
+        
         this.restClient = new MailManagementApi(undefined, url, undefined);
     }
 

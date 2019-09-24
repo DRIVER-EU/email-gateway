@@ -1,7 +1,7 @@
 import { Controller, Get, Inject, Param, Req, Put, Body, Query, ValidationPipe, Post } from '@nestjs/common';
 import { ApiResponse, ApiOperation, ApiImplicitParam, ApiUseTags, ApiImplicitBody, ApiImplicitQuery } from '@nestjs/swagger';
 import { ManagementService } from './management.service';
-import { MailData, MailAccountsResultImpl, AddMailAccountResultImpl, DeleteMailAccountResultImpl, ResetResultImpl } from './../models/rest/rest-models';
+import { MailData, Statusresult, MailAccountsResultImpl, AddMailAccountResultImpl, DeleteMailAccountResultImpl, ResetResultImpl } from './../models/rest/rest-models';
 
 
 
@@ -65,6 +65,26 @@ export class ManagementController {
     }
     return 'Test mail send';
   }
+    /********************************  GET STATUS  ********************************************************/
+    @ApiOperation({
+      title: 'Get status',
+      description: 'Get status of server',
+      operationId: 'GetStatus',
+    })
+    @ApiResponse({
+      status: 200,
+      description: 'Returns the status of server',
+      type: Statusresult,
+    })
+    @Get('GetStatus')
+    async GetStatus(): Promise<Statusresult> {
+      const status = await this.service.provider.GetStatus();
+      const result: Statusresult = {
+        StatusAsJson: JSON.stringify(status)
+      };
+      return result;
+    }
+
   /********************************  GET MAIL ACOUNTS ********************************************************/
   @ApiOperation({
     title: 'Get mail accounts',
@@ -109,7 +129,7 @@ export class ManagementController {
   })
   @Post('AddMailAccount')
   async AddMailAccount(@Query('account') account: string, @Query('password') password: string): Promise<AddMailAccountResultImpl> {
-      return this.service.provider.PostfixService.addAccount(account, password);
+    return this.service.provider.PostfixService.addAccount(account, password);
   }
 
   /*******************************************************************************************/
@@ -134,19 +154,19 @@ export class ManagementController {
     return this.service.provider.PostfixService.deleteMailAccount(account);
   }
 
-    /*******************************************************************************************/
-    @ApiOperation({
-      title: 'Reset',
-      description: 'Reset database',
-      operationId: 'Reset',
-    })
-    @ApiResponse({
-      status: 200,
-      description: '',
-      type: ResetResultImpl,
-    })
-    @Post('Reset')
-    async Reset(): Promise<ResetResultImpl> {
-      return this.service.provider.PostfixService.reset();
-    }
+  /*******************************************************************************************/
+  @ApiOperation({
+    title: 'Reset',
+    description: 'Reset database',
+    operationId: 'Reset',
+  })
+  @ApiResponse({
+    status: 200,
+    description: '',
+    type: ResetResultImpl,
+  })
+  @Post('Reset')
+  async Reset(): Promise<ResetResultImpl> {
+    return this.service.provider.PostfixService.reset();
+  }
 }

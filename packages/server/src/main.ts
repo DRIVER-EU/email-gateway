@@ -5,11 +5,8 @@ import { AppModule } from './app.module';
 
 
 // Services
-import { ILogService, LogService } from './services/log-service';
 import { NestExpressApplication } from '@nestjs/platform-express';
 
-import { join } from 'path';
-import { Inject } from '@nestjs/common';
 import { MailGatewayProvider } from './mail-gateway-provider';
 let path = require('path');
 let express = require('express');
