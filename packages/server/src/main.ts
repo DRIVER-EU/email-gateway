@@ -23,17 +23,13 @@ Creates the webserver NEST.JS (uses express under the hood) and
  - Create swagger documentation (entrypoint on websever)
  */
 export class MailGatewayServer {
-
-  private server: NestExpressApplication;
   private provider: MailGatewayProvider;
 
   constructor() {
-    const logService = new LogService();
-    // provider.GetTestBedKafkaService().GenerateTestMessages();
     this.StartNestServerAsync()
-      .then(server => {
+      .then((server: NestExpressApplication) => {
         this.provider = server.get(MailGatewayProvider); // Injection cannot be done in constructor
-
+        this.provider.SetServer(server);
       });
   }
 

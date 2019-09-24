@@ -6,7 +6,7 @@
     "kafka": {
         "kafkaHost": "localhost:3501",
         "schemaRegistryUrl": "localhost:3502",
-        "autoRegisterSchemas": true,
+        "autoRegisterSchemas": false,
 		 "mediaTopicName": "simulation_entity_post"
     }
 }

@@ -1,4 +1,8 @@
-import { ReadMail } from './../helpers/read-mail';
+/*
+Service:
+- Convert ISimulationEntityPost messages from KAFKA bus to mail server as e-mails
+- Convert sent e-mails from mail server to KAFKA bus as ISimulationEntityPost
+*/
 
 // Services:
 import { IConfigService } from './config-service';
@@ -7,26 +11,25 @@ import { ITestBedKafkaService } from './test-bed-kafka-service';
 import { IPostfixMailServerManagementService } from './postfix-mailserver-management';
 import { ISimulationEntityPost, MediumTypes } from './../models/simulation-entity-post';
 
-import * as nodemailer from 'nodemailer';
-
-import { Transporter, Transport, SendMailOptions as MailEnvelop } from 'nodemailer';
-import { Options as SmtpOptions } from 'nodemailer/lib/smtp-transport';
-import { simpleParser, ParsedMail } from 'mailparser';
-import { mailAddressConverter } from './../helpers/mailAdressesConverter';
-
-
-import { ConvertSimEntityToMail } from './../helpers/convert-sim-entity-to-mail';
 import { EventEmitter } from 'events';
 
+import { SimEntityPost2MailServerManager } from '../workers/SimEntityPost2MailServerManager';
+import { MailServer2SimEntityPostManager } from '../workers/MailServer2SimEntityPostManager';
+
+import { testPost } from '../testdata/testdata';
+
+const Fs = require('fs');
+const Path = require('path');
+const Axios = require('axios');
+const Request = require('request');
+import Url = require('url');
 
 // https://community.nodemailer.com/
 
 // Configuration settings for this service
-export interface IMailSettings {
+export interface ISmtpSettings {
   SmtpHost: string;
   SmtpPort: number;
-  SmtpUser: string;
-  SmtpPassword: string;
 }
 
 export interface IMapSettings {
@@ -36,167 +39,53 @@ export interface IMapSettings {
 
 
 export interface IMailService {
-
+  enqueueSimulationEntityPost(msg: ISimulationEntityPost): void;
 }
 
-const axios = require('axios');
+import axios = require('axios');
 
-export interface IMailboxStatus {
-  latestUid: number;
-}
+
 
 export class MailService implements IMailService {
 
-  private mailBoxes = new Map<string, IMailboxStatus>();
-  private checkingMailboxes: ReadMail[] = [];
 
-  private smtpConnection: Transporter;
-  private settings: IMailSettings;
 
+  private exportToMailManager: SimEntityPost2MailServerManager;
+  private exportToKafkaManager: MailServer2SimEntityPostManager;
 
   constructor(
     private logService: ILogService,
     private configService: IConfigService,
     private kafkaService: ITestBedKafkaService,
     private postfixService: IPostfixMailServerManagementService) {
-    this.settings = configService.MailSettings;
-
-
-    // const lst = mailAddressParser();
-
-
-
+    this.exportToMailManager = new SimEntityPost2MailServerManager(this.logService, this.configService, this.postfixService);
+    this.exportToKafkaManager = new MailServer2SimEntityPostManager(this.logService, this.configService, this.postfixService);
     this.kafkaService.on('SimulationEntityPostMsg', msg => this.HandleSimulationEntityPostMsg(msg));
-    this.InitializeSmtpConnection()
-      .then(() => {
-        logService.LogMessage('Connected to the mail-sever');
-      })
-      .catch(err => {
-        logService.LogErrorMessage('Failed to connected to the mail-sever');
+    this.exportToKafkaManager.on('OnPost', post => this.handleKafkaPostMsg(post));
+    this.exportToMailManager.start(); // Background task to copy SimEntityPost to the mail server
+    this.exportToKafkaManager.start(); // Background task to copy e-mails to SimEntityPost
 
-      });
+    // this.exportToMailManager.enqueue(testPost);
 
-    this.GetMail('demo@driver.eu');
-
-  }
-
-  rm: ReadMail;
-  private GetMail(accountName: string) {
-    // var mailBox = this.mailBoxes.get(simItem.guid);
-    // if (mailBox) {
-
-    // } else {
-
-    // }
-    // this.simulationItems.set( simItem.guid, simItem);
-
-
-    this.rm = new ReadMail(this.configService.IMapSettings, accountName, 'demo', 1);
-    this.rm.on('NewMail', (mail: ParsedMail) => {
-
-      if (mail.attachments) {
-        for (let i = 0; i < mail.attachments.length; i += 1) {
-          let attachment = mail.attachments[i];
-        }
-      }
-    });
-    this.rm.on('Finished', (uid: number) => {
-      console.log(uid);
-      this.rm.removeAllListeners();
-      // this.checkingMailboxes = this.checkingMailboxes.filter(obj => obj !== this.rm);
-      delete this.rm;
-    });
-
-    this.rm.StartProcessing();
-  }
-
-
-  public async GetAccounts() {
-    const result = await this.postfixService.mailAccounts();
-    return result;
   }
 
   private HandleSimulationEntityPostMsg(msg: ISimulationEntityPost) {
+    this.enqueueSimulationEntityPost(msg);
+  }
+
+  // Received converted mail to ISimulationEntityPost
+  private handleKafkaPostMsg(post: ISimulationEntityPost) {
+    this.kafkaService.send(post);
+  }
+
+  public enqueueSimulationEntityPost(msg: ISimulationEntityPost) {
     if (msg.mediumType === MediumTypes.MAIL) {
-      this.mailSimulationEntityPost(msg);
+      this.exportToMailManager.enqueue(msg); // queue for processing
     }
   }
 
 
 
-  private async sendMail(mail: MailEnvelop) {
-    try {
-      
-      if (mail.to)
-         this.postfixService.addEMailAddresses(mailAddressConverter(mail.to));
-      let info = await this.smtpConnection.sendMail(convertToMail.GetMailMessage(), function (err: any, info: any) {
-        if (err)
-          console.log(err);
-        else
-          console.log(info);
-      });
-    } catch (e) {
-      this.logService.LogErrorMessage(`Failed to send message ${msg.guid}`);
-    }
-  }
-
-  private async mailSimulationEntityPost(msg: ISimulationEntityPost) {
-
-    let convertToMail = new ConvertSimEntityToMail(msg);
-    try {
-      convertToMail.CheckRequiredFields();
-      this.postfixService.addEMailAddresses(convertToMail.ToMailAccounts());
-      let info = await this.smtpConnection.sendMail(convertToMail.GetMailMessage(),
-         function (err: any, info: any) {
-        if (err)
-          console.log(err);
-        else
-          console.log(info);
-      });
-    } catch (e) {
-      this.logService.LogErrorMessage(`Failed to send message ${msg.guid}`);
-    }
-
-  }
-
-  async InitializeSmtpConnection() {
-
-    this.logService.LogMessage(`Connecting to SMTP server ${this.settings.SmtpHost} on port ${this.settings.SmtpPort} as user ${this.settings.SmtpUser}`);
-    // Create a SMTP transporter object
-    const options: SmtpOptions = {
-      host: this.settings.SmtpHost,
-      port: this.settings.SmtpPort,
-      secure: false, // use TLS
-      requireTLS: true,
-      auth: {
-        user: this.settings.SmtpUser,
-        pass: this.settings.SmtpPassword
-      },
-      logger: true,
-      debug: true,
-      tls: {
-        //   do not fail on invalid certs
-        rejectUnauthorized: false
-      }
-    };
-    this.smtpConnection = nodemailer.createTransport(options);
-
-    // Notify when connected to SMTP server
-    this.smtpConnection.verify((e, succes) => this.OnConnectedToSmtpServer(e, succes));
-
-
-
-  }
-
-  // Callback for nodemailer when connected to SMTP server
-  private OnConnectedToSmtpServer(error: Error | null, success: boolean): void {
-    if (success) {
-      this.logService.LogMessage('Connected to SMTP server');
-    } else {
-      const errMessage = error ? error : 'no error message';
-      this.logService.LogErrorMessage(`Failed to connect to SMTP server: ${errMessage}`);
-    }
-  }
 
 
 }

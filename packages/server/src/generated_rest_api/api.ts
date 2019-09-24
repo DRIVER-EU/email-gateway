@@ -84,6 +84,12 @@ export class RequiredError extends Error {
  * @interface AddMailAccountResult
  */
 export interface AddMailAccountResult {
+    /**
+     * 
+     * @type {string}
+     * @memberof AddMailAccountResult
+     */
+    Msg: string;
 }
 
 /**
@@ -92,6 +98,12 @@ export interface AddMailAccountResult {
  * @interface DeleteMailAccountResult
  */
 export interface DeleteMailAccountResult {
+    /**
+     * 
+     * @type {string}
+     * @memberof DeleteMailAccountResult
+     */
+    Msg: string;
 }
 
 /**
@@ -106,6 +118,20 @@ export interface MailAccountsResult {
      * @memberof MailAccountsResult
      */
     Accounts: Array<string>;
+}
+
+/**
+ * 
+ * @export
+ * @interface ResetResult
+ */
+export interface ResetResult {
+    /**
+     * 
+     * @type {string}
+     * @memberof ResetResult
+     */
+    Msg: string;
 }
 
 
@@ -212,14 +238,15 @@ export const MailManagementApiFetchParamCreator = function (configuration?: Conf
             };
         },
         /**
-         * 
+         * Reset
+         * @summary Reset
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        mailManagementGet(options: any = {}): FetchArgs {
-            const localVarPath = `/MailManagement`;
+        resetbase(options: any = {}): FetchArgs {
+            const localVarPath = `/MailManagement/Reset`;
             const localVarUrlObj = url.parse(localVarPath, true);
-            const localVarRequestOptions = Object.assign({ method: 'GET' }, options);
+            const localVarRequestOptions = Object.assign({ method: 'POST' }, options);
             const localVarHeaderParameter = {} as any;
             const localVarQueryParameter = {} as any;
 
@@ -300,16 +327,17 @@ export const MailManagementApiFp = function(configuration?: Configuration) {
             };
         },
         /**
-         * 
+         * Reset
+         * @summary Reset
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        mailManagementGet(options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<Response> {
-            const localVarFetchArgs = MailManagementApiFetchParamCreator(configuration).mailManagementGet(options);
+        resetbase(options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<ResetResult> {
+            const localVarFetchArgs = MailManagementApiFetchParamCreator(configuration).resetbase(options);
             return (fetch: FetchAPI = portableFetch, basePath: string = BASE_PATH) => {
                 return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
                     if (response.status >= 200 && response.status < 300) {
-                        return response;
+                        return response.json();
                     } else {
                         throw response;
                     }
@@ -356,12 +384,13 @@ export const MailManagementApiFactory = function (configuration?: Configuration,
             return MailManagementApiFp(configuration).mailAccounts(options)(fetch, basePath);
         },
         /**
-         * 
+         * Reset
+         * @summary Reset
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        mailManagementGet(options?: any) {
-            return MailManagementApiFp(configuration).mailManagementGet(options)(fetch, basePath);
+        resetbase(options?: any) {
+            return MailManagementApiFp(configuration).resetbase(options)(fetch, basePath);
         },
     };
 };
@@ -410,13 +439,14 @@ export class MailManagementApi extends BaseAPI {
     }
 
     /**
-     * 
+     * Reset
+     * @summary Reset
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof MailManagementApi
      */
-    public mailManagementGet(options?: any) {
-        return MailManagementApiFp(this.configuration).mailManagementGet(options)(this.fetch, this.basePath);
+    public resetbase(options?: any) {
+        return MailManagementApiFp(this.configuration).resetbase(options)(this.fetch, this.basePath);
     }
 
 }

@@ -60,7 +60,7 @@ export class TestBedKafkaService extends EventEmitter implements ITestBedKafkaSe
       fetchAllVersions: false,
       wrapUnions: 'auto',
       clientId: this.kafkaSettings.kafkaClientId,
-      autoRegisterSchemas: this.kafkaSettings.autoRegisterSchemas,
+      autoRegisterSchemas: true /* this.kafkaSettings.autoRegisterSchemas, */,
       schemaFolder: schemaPath,
       consume: [{ topic: this.kafkaSettings.mediaTopicName }],
       produce: [this.kafkaSettings.mediaTopicName],
@@ -80,7 +80,7 @@ export class TestBedKafkaService extends EventEmitter implements ITestBedKafkaSe
   }
 
   public ConnectToKafka(): void {
-    // this.adapter.connect();
+     // this.adapter.connect();
   }
 
   public get Settings() {
@@ -116,10 +116,10 @@ export class TestBedKafkaService extends EventEmitter implements ITestBedKafkaSe
         } as ProduceRequest;
         this.adapter.send(payload, (err, data) => {
           if (err) {
-            console.error(err);
+            this.logService.LogErrorMessage('Fatal error sending KAFKA message, exit');
             process.exit(1);
           } else {
-            console.log(JSON.stringify(data, null, 2));
+            this.logService.LogMessage('Kafka message send: ' + JSON.stringify(data, null, 2));
           }
         });
       });

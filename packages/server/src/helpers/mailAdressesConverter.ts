@@ -2,8 +2,40 @@
 import { Address  } from 'nodemailer/lib/mailer';
 import mailAddressesParser = require('nodemailer/lib/addressparser');
 
-// Convert all email address formats to 1 format
-export function mailAddressConverter(mailAddress?: string): Address[] {
+function isString(x: any): x is string {
+    return typeof x === 'string';
+}
+
+// Check if x is Address interface
+function isAddress(x: any): x is Address {
+    return (x as Address).address !== undefined;
+}
+
+// Array.isArray function
+function isArray(x: any) {
+    return !!x && x.constructor === Array;
+}
+
+export function mailAddressConverterSingle(mailAddress:  string | Address | undefined): Address | undefined {
+    if (isString(mailAddress)) return mailAddressStringConverter(mailAddress)[0];
+    return mailAddress;
+}
+// Convert all email address formats to 1 type
+export function mailAddressConverter(mailAddress:  string | Address | Array<string | Address>): Address[] {
+    if (mailAddress) {
+        if (isArray(mailAddress)) {
+            let addresses: Address[] = [];
+            let list = <Array<string | Address>>mailAddress;
+            list.forEach(item => addresses.push(...mailAddressConverter(item)));
+            return addresses;
+        }
+        if (isString(mailAddress)) return mailAddressStringConverter(mailAddress);
+        if (isAddress(mailAddress)) return [ mailAddress ];
+    }
+    return [];
+}
+
+export function mailAddressStringConverter(mailAddress:  string): Address[] {
     let addresses: Address[] = [];
     if (mailAddress) {
         mailAddressesParser(mailAddress).forEach(x => {

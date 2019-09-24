@@ -1,11 +1,11 @@
 import { MailGatewayServer } from './main';
 import * as npmPackage from './../package.json';
 
-/* 
+/*
 Initial ENTRY point to start E-MAIL gateway
 */
 
-process.on('exit', function(code) {  
+process.on('exit', function(code) {
     return console.log(`Exit with code ${code}`);
 });
 

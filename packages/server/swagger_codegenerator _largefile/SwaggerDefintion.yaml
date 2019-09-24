@@ -1,0 +1,145 @@
+---
+swagger: "2.0"
+info:
+  description: "A simple HTTP Server offering an API to upload (large) files. These\
+    \ files may be either publicly listed, or made private through an ubfuscated filename."
+  version: "0.0.2"
+  title: "DRIVER+ Large File Service"
+  contact:
+    email: "pieter.hameete@tno.nl"
+  license:
+    name: "MIT License"
+    url: "https://raw.githubusercontent.com/DRIVER-EU/large-file-service/master/LICENSE"
+host: "localhost:9090"
+basePath: "/"
+tags:
+- name: "upload"
+  description: "Uploading Files Publically or Privately"
+- name: "public"
+  description: "Public File Listing and Retrieval"
+- name: "private"
+  description: "Private File Retrieval"
+schemes:
+- "http"
+paths:
+  /:
+    get:
+      tags:
+      - "upload"
+      summary: "Returns an HTML document with a simple form for uploading files publically\
+        \ or privately"
+      description: "Returns an HTML document with a simple form for uploading files\
+        \ publically or privately"
+      produces:
+      - "text/html"
+      parameters: []
+      responses:
+        200:
+          description: "OK"
+  /upload:
+    get:
+      tags:
+      - "upload"
+      summary: "Shows an HTML document with a simple form for uploading files publically\
+        \ or privately"
+      description: "Shows an HTML document with a simple form for uploading files\
+        \ publically or privately"
+      produces:
+      - "text/html"
+      parameters: []
+      responses:
+        200:
+          description: "OK"
+    post:
+      tags:
+      - "upload"
+      summary: "Update a file publically or privately"
+      description: "Upload and publish a file publically or privately via a multipart/form-data\
+        \ post"
+      consumes:
+      - "multipart/form-data"
+      produces:
+      - "application/json"
+      parameters:
+      - name: "uploadFile"
+        in: "formData"
+        description: "File to upload"
+        required: true
+        type: "file"
+        x-exportParamName: "UploadFile"
+      - name: "private"
+        in: "formData"
+        description: "Set to true if the file should be published with an obfuscated\
+          \ URL"
+        required: true
+        type: "boolean"
+        x-exportParamName: "Private"
+      responses:
+        201:
+          description: "Status Created"
+          schema:
+            $ref: "#/definitions/UploadResponse"
+  /public/:
+    get:
+      tags:
+      - "public"
+      summary: "List all publically uploaded files"
+      description: "List all publically uploaded files"
+      produces:
+      - "text/html"
+      parameters: []
+      responses:
+        200:
+          description: "OK"
+  /public/{fileName}:
+    get:
+      tags:
+      - "public"
+      summary: "Download a publically listed file by file name"
+      description: "Download a publically listed file by file name"
+      produces:
+      - "application/octet-stream"
+      parameters:
+      - name: "fileName"
+        in: "path"
+        description: "Name of the public file to download"
+        required: true
+        type: "string"
+        x-exportParamName: "FileName"
+      responses:
+        200:
+          description: "OK"
+          schema:
+            type: "file"
+        404:
+          description: "File not found"
+  /private/{fileName}:
+    get:
+      tags:
+      - "private"
+      summary: "Download a private file by file name"
+      description: "Download a private file by file name"
+      produces:
+      - "application/octet-stream"
+      parameters:
+      - name: "fileName"
+        in: "path"
+        description: "Name of the private file to download"
+        required: true
+        type: "string"
+        x-exportParamName: "FileName"
+      responses:
+        200:
+          description: "OK"
+          schema:
+            type: "file"
+        404:
+          description: "File not found"
+definitions:
+  UploadResponse:
+    type: "object"
+    properties:
+      FileURL:
+        type: "string"
+    example:
+      FileURL: "FileURL"
