@@ -30,10 +30,10 @@ services:
     networks:
       static-network:
         ipv4_address: 10.5.0.5
-    volumes:
-    - maildata:/var/mail
-    - mailstate:/var/mail-state
-    - ./config/:/tmp/docker-mailserver/
+#    volumes:
+#     - ./mail/maildata:/var/mail
+#     - ./mail/mailstate:/var/mail-state
+#     - ./config/:/tmp/docker-mailserver/
     environment:
     - DMS_DEBUG=${DMS_DEBUG}
     - ENABLE_CLAMAV=${ENABLE_CLAMAV}
