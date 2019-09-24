@@ -10,15 +10,19 @@ import { Inject } from '@nestjs/common';
 var path = require('path');
 var express = require('express');
 
+var fs = require('fs');
+var util = require('util');
+
+
 export class Server {
 
   private server: NestExpressApplication;
 
   constructor() {
-    console.log("Starting server");
+
     this.StartNestServerAsync()
+      // tslint:disable-next-line: no-empty
       .then(server => {
-        console.log("Server started");
       });
 
   }
@@ -26,8 +30,12 @@ export class Server {
   // Setup NEST.JS REST server
   async StartNestServerAsync(): Promise<NestExpressApplication> {
     // Create the server
+    const port = process.env.MailServerApiPort || 3000;
+
     const app = await NestFactory.create<NestExpressApplication>(AppModule, { cors: true /* enable preflight cors */ });
  
+    app.useStaticAssets(join(__dirname, 'public'));
+
     // Add response header to all incomming requests
     // Use express from this
     app.use((req: any, res: any, next: any) => {
@@ -46,11 +54,12 @@ export class Server {
       .build();
     const document = SwaggerModule.createDocument(app, options);
     SwaggerModule.setup('api', app, document); // http://<host>:<port>/api
-    console.log(`'http://localhost:3000/api': OpenApi (swagger) documentation.`);
-    console.log(`'http://localhost:3000/api-json': OpenApi (swagger) definition. `);
+    // console.log(`'http://localhost:{port}}/api': OpenApi (swagger) documentation.`);
+    // console.log(`'http://localhost:{port}}/api-json': OpenApi (swagger) definition. `);
 
     // Start server
-    await app.listen(3000);
+   
+    await app.listen(port);
     return app;
   }
 }

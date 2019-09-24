@@ -2,6 +2,7 @@
 
 
 # Based on debian:stretch-slim
+# FROM debian:stretch-slim
 FROM tvial/docker-mailserver:latest
 
 MAINTAINER DRIVER-EU
@@ -44,8 +45,16 @@ RUN dos2unix /home/node/app/*.sh
 
 RUN npm run build
 
- 
+RUN usermod -aG sudo docker && \
+    usermod -aG sudo dovecot && \
+	usermod -aG sudo postfix && \
+	usermod -aG sudo amavis && \
+	mkdir  /tmp/docker-mailserver && \
+	touch /tmp/docker-mailserver/postfix-virtual.cf
 
+ 
+RUN echo '%sudo ALL=(ALL) NOPASSWD:ALL' >> /etc/sudoers
+RUN echo '%docker ALL=(ALL) NOPASSWD:ALL' >> /etc/sudoers
 
 EXPOSE 3000
 
