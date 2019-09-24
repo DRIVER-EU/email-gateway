@@ -7,15 +7,17 @@
     "build": "ng build",
     "test": "ng test",
     "lint": "ng lint",
-    "e2e": "ng e2e"
+    "generate-rest-client": "cd swagger_codegenerator && GenerateCodeWithDocker.bat"
   },
   "private": true,
   "dependencies": {
-    "@angular/animations": "~8.2.0",
+    "@angular/animations": "^8.2.7",
+    "@angular/cdk": "^8.2.0",
     "@angular/common": "~8.2.0",
     "@angular/compiler": "~8.2.0",
     "@angular/core": "~8.2.0",
     "@angular/forms": "~8.2.0",
+    "@angular/material": "^8.2.0",
     "@angular/platform-browser": "~8.2.0",
     "@angular/platform-browser-dynamic": "~8.2.0",
     "@angular/router": "~8.2.0",
@@ -24,6 +26,7 @@
     "ag-grid-community": "^21.1.1",
     "bootstrap": "^4.3.1",
     "font-awesome": "^4.7.0",
+    "ngx-socket-io": "^3.0.1",
     "portable-fetch": "^3.0.0",
     "rxjs": "~6.4.0",
     "tslib": "^1.10.0",

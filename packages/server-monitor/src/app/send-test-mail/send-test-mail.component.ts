@@ -10,13 +10,15 @@ import { GatewayMailServerService } from './../gateway-mail-server.service';
 })
 export class SendTestMailComponent implements OnInit {
   mailForm;
-
+  useKafka = false;
   constructor(
     private mailGatewayService: GatewayMailServerService,
     private formBuilder: FormBuilder) {
       this.mailForm = this.formBuilder.group({
-        from: '',
-        to: ''
+        from:  '"Hein Kluiver 👻" <hein@demo.com>' ,
+        to:  'jos@demo.com' ,
+        subject: '',
+        content: ''
       });
     }
 
@@ -27,9 +29,12 @@ export class SendTestMailComponent implements OnInit {
     const mail: MailData = {
       From: formData.from,
       To: formData.to,
-      Subject: ''
+      Subject: formData.subject,
+      Content: formData.content
     };
-    this.mailGatewayService.SendMail(mail);
+    this.mailGatewayService.SendMail(mail, this.useKafka).catch(e => {
+      console.log('error');
+    });
     this.mailForm.reset();
   }
 

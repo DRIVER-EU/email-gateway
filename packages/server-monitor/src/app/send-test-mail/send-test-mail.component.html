@@ -2,22 +2,45 @@
 <br>
 <br>
 <br>
-<form [formGroup]="mailForm" (ngSubmit)="onSubmit(mailForm.value)">
+
+<div class="inputform">
+<form  [formGroup]="mailForm" (ngSubmit)="onSubmit(mailForm.value)">
 
     <div>
       <label for="from">
-        Name
+        From
       </label>
+      <br>
       <input id="from" type="text" formControlName="from">
     </div>
-  
+   
     <div>
       <label for="to">
-        Address
+        Tp
       </label>
+      <br>
       <input id="to" type="text" formControlName="to">
     </div>
-  
+
+    <div>
+      <label for="subject">
+        Subject
+      </label>
+      <br>
+      <input id="subject" type="text" formControlName="subject">
+    </div>
+
+    <div>
+      <label for="content">
+        Message
+      </label>
+      <br>
+      <input id="content" type="text" formControlName="content">
+    </div>
+  <br>
+    
     <button class="button" type="submit">Send mail</button>
   
   </form>
+  <mat-checkbox [(ngModel)]="useKafka">Place message on KAFKA bus</mat-checkbox><br>
+</div>

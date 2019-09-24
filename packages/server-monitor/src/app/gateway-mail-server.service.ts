@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { MAILGATEWAY_BASE_PATH } from './../Config';
-import { Configuration, ManagementApi, MailData } from './../generated_rest_api/index';
+import { Configuration, ManagementApi, MailData, MailAccountsResultImpl,
+  DeleteMailAccountResultImpl, AddMailAccountResultImpl, ResetResultImpl } from './../generated_rest_api/index';
 
 @Injectable({
   providedIn: 'root'
@@ -12,12 +13,21 @@ export class GatewayMailServerService {
     this.restClient = new ManagementApi(undefined, url, undefined);
   }
 
-  public SendMail(mailData: MailData) {
-    this.restClient.sendTestMail(mailData, false)
-        .then((result) => {
+  public async SendMail(mailData: MailData, useKafka: boolean) {
+    return this.restClient.sendTestMail(mailData, useKafka);
+  }
 
-        }).catch((error) => {
+  public async getAccounts(): Promise<MailAccountsResultImpl> {
+    return this.restClient.mailAccounts();
+  }
+  public async deleteAccount(account: string): Promise<DeleteMailAccountResultImpl> {
+    return this.restClient.deleteAccount(account);
+  }
 
-        });
-}
+  public async addAccount(account: string, password: string): Promise<AddMailAccountResultImpl> {
+    return this.restClient.addAccount(password, account);
+  }
+  public async reset(): Promise<ResetResultImpl> {
+    return this.restClient.reset();
+  }
 }
