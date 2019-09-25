@@ -2,6 +2,8 @@ import { Injectable } from '@nestjs/common';
 import { MailAccountsResult, AddMailAccountResult, DeleteMailAccountResult, ResetResult } from './models/restmodels';
 
 import fs = require('fs');
+import log4js = require('log4js');
+const logger = log4js.getLogger('mailApi');
 
 @Injectable()
 export class AppService {
@@ -14,9 +16,10 @@ export class AppService {
 
   async AddMailAccount(accountName: string, password: string): Promise<AddMailAccountResult> {
     // tslint:disable-next-line: no-console
-    console.log(`REST command: Add mail account '${accountName}'. `);
+    logger.info(`REST command: Add mail account '${accountName}'. `);
     if (this.isRunningInDocker()) {
-      this.execShellCommand(`addmailuser ${accountName} ${password}`);
+      this.execShellCommand(`addmailuser ${accountName} ${password}`)
+      .then(x => {} );
     }
     const result = new AddMailAccountResult();
     result.Msg = `Add mail account '${accountName}'. `;
@@ -24,8 +27,13 @@ export class AppService {
   }
 
   async DeleteMailAccount(accountName: string): Promise<DeleteMailAccountResult> {
+    if (accountName === 'admin@driver.eu') {
+      const result1 = new DeleteMailAccountResult();
+      result1.Msg = `Not allowed to delete '${accountName}'. `;
+      return result1;
+    }
     // tslint:disable-next-line: no-console
-    console.log(`REST command: Delete mail account '${accountName}'. `);
+    logger.info(`REST command: Delete mail account '${accountName}'. `);
     if (this.isRunningInDocker()) {
       this.execShellCommand(`delmailuser -y ${accountName}`);
     }
@@ -36,7 +44,7 @@ export class AppService {
 
   async Reset(): Promise<ResetResult> {
     // tslint:disable-next-line: no-console
-    console.log(`REST command: Reset. `);
+    logger.info(`REST command: Reset. `);
     if (this.isRunningInDocker()) {
       const accountString = await this.execShellCommand('listmailuser');
       const accounts = accountString.split(/\r?\n/).filter(Boolean);
@@ -59,7 +67,7 @@ export class AppService {
 
   public async GetMailAccounts(): Promise<MailAccountsResult> {
     // tslint:disable-next-line: no-console
-    console.log(`REST command: Get mail accounts. `);
+    logger.info(`REST command: Get mail accounts. `);
     if (this.isRunningInDocker()) {
       const accountString = await this.execShellCommand('listmailuser');
       const accounts = accountString.split(/\r?\n/);
@@ -69,7 +77,7 @@ export class AppService {
       return x;
     } else {
       const x: MailAccountsResult = {
-        Accounts: ['test@a.com', 'dummy@b.com'],
+        Accounts: ['nodocker@demo.com'],
       };
       return x;
     }
@@ -82,15 +90,16 @@ export class AppService {
    */
   async execShellCommand(cmd: string): Promise<string> {
     const exec = require('child_process').exec;
+    logger.info('Shell execute cmd: ' + cmd);
     return new Promise((resolve, reject) => {
       exec(cmd, (error: any, stdout: any, stderr: any) => {
         if (error) {
           // tslint:disable-next-line: no-console
-          console.log('Shell execution error: ' + stderr);
+          logger.error('Shell execution error: ' + stderr);
           reject(stderr);
         }
         // tslint:disable-next-line: no-console
-        console.log(stdout);
+        // logger.info('Shell response: ' + stdout);
         resolve(stdout);
       });
     });

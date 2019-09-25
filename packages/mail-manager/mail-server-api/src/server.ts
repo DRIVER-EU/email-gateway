@@ -7,15 +7,23 @@ import { Express } from 'express';
 import { join } from 'path';
 import { Inject } from '@nestjs/common';
 
-var path = require('path');
-var express = require('express');
+// var path = require('path');
+// var express = require('express');
 
-var fs = require('fs');
-var util = require('util');
+// var fs = require('fs');
+// var util = require('util');
+import log4js = require('log4js');
 
+log4js.configure({
+  appenders: { mailApi: { type: 'file', filename: 'mail_api.log' } },
+  categories: { default: { appenders: ['mailApi'], level: 'info' } }
+});
+
+const logger = log4js.getLogger('mailApi');
 
 export class Server {
 
+  
   private server: NestExpressApplication;
 
   constructor() {
@@ -31,6 +39,8 @@ export class Server {
   async StartNestServerAsync(): Promise<NestExpressApplication> {
     // Create the server
     const port = process.env.MailServerApiPort || 3000;
+
+    logger.info(`API Mail Server REST interface started on port ${port}. ` );
 
     const app = await NestFactory.create<NestExpressApplication>(AppModule, { cors: true /* enable preflight cors */ });
  

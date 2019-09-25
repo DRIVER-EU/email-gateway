@@ -14,13 +14,14 @@
     "prestart:prod": "rimraf dist && npm run build",
     "start:prod": "node dist/main.js",
     "lint": "tslint -p tsconfig.json -c tslint.json",
-	"build_docker": "docker build -t driver-mailserver ."
+    "build_docker": "docker build -t driver-mailserver ."
   },
   "dependencies": {
     "@nestjs/common": "^6.0.0",
     "@nestjs/core": "^6.0.0",
     "@nestjs/platform-express": "^6.1.1",
     "@nestjs/swagger": "^3.0.2",
+    "log4js": "^5.1.0",
     "reflect-metadata": "^0.1.12",
     "rimraf": "^2.6.2",
     "rxjs": "^6.3.3",
