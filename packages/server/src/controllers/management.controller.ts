@@ -167,6 +167,10 @@ export class ManagementController {
   })
   @Post('Reset')
   async Reset(): Promise<ResetResultImpl> {
-    return this.service.provider.PostfixService.reset();
+    this.service.provider.MailGatewayService.reset();
+    const result: ResetResultImpl = {
+       Msg: 'Cleared database'
+    };
+    return result;
   }
 }

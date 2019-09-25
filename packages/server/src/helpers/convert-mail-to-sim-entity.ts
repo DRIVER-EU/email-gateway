@@ -3,6 +3,8 @@ import { ISimulationEntityPost, MediumTypes } from './../models/simulation-entit
 import { uuid4 } from 'node-test-bed-adapter';
 import { uploadFileToLargeFileService } from './../helpers/upload';
 
+import { GlobalConst } from './../global-const';
+
 // Services:
 import { IConfigService } from '../services/config-service';
 import { ILogService } from '../services/log-service';
@@ -32,7 +34,7 @@ export class ConvertMailToSimEntity {
             name: this.mail.subject,
             body: this.mail.textAsHtml,
             date: (this.mail.date) ? (this.mail.date.getTime()) : new Date().getTime(),
-            owner: '',
+            owner: GlobalConst.mailOwner,
             mediumName: '',
             visibleForParticipant: true,
             files: this.attachmentUrls

@@ -10,7 +10,7 @@ Service to get all configuration.
 The package https://www.npmjs.com/package/nconf is used for this.
 
 */
-const Path = require('path');
+const path = require('path');
 const nconf = require('nconf');
 const Yargs = require('yargs');
 const fs = require('fs');
@@ -58,11 +58,11 @@ export class ConfigService extends EventEmitter implements IConfigService {
           separator: '_', // Replace : with _ since : is not allowed
           // whitelist: ['']
         })
-        .file('generic', { file: `${process.cwd()}/${nconf.get('config')}` })
+        .file('generic', { file: path.join(process.cwd(), nconf.get('config')) })
         .defaults({
         });
 
-        const cfgFile = `${process.cwd()}/${nconf.get('config')}`;
+        const cfgFile = path.join(process.cwd(), nconf.get('config'));
         console.log(`Use configuration file '${cfgFile}'.`);
 
         try {
@@ -97,12 +97,17 @@ export class ConfigService extends EventEmitter implements IConfigService {
     }
 
     get KafkaSettings(): ITestBedAdapterSettings {
+        // TODO boolean are string because type boolean fails.
+
+        const connect = (nconf.get('kafka:connectToKafka')) ? (nconf.get('kafka:connectToKafka') === 'true')  : true;
+        const register = (nconf.get('kafka:autoRegisterSchemas')) ? (nconf.get('kafka:autoRegisterSchemas') === 'true')  : true;
         let result: ITestBedAdapterSettings = {
             kafkaHost:  nconf.get('kafka:kafkaHost') || 'localhost:3501',
             schemaRegistryUrl: nconf.get('kafka:schemaRegistryUrl') || 'localhost:3502',
-            autoRegisterSchemas: nconf.get('kafka:autoRegisterSchemas') || false,
+            autoRegisterSchemas: register,
             kafkaClientId: nconf.get('kafka:clientid') || 'MailGatewayService',
-            mediaTopicName: nconf.get('kafka:mediaTopicName') || 'Media'
+            mediaTopicName: nconf.get('kafka:mediaTopicName') || 'Media',
+            connectToKafka: connect
         };
         return result;
     }

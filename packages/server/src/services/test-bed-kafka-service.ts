@@ -19,6 +19,7 @@ export interface ITestBedAdapterSettings {
   autoRegisterSchemas: boolean;
   kafkaClientId: string;
   mediaTopicName: string;
+  connectToKafka: boolean;
 }
 
 export interface ITestBedKafkaService {
@@ -80,13 +81,18 @@ export class TestBedKafkaService extends EventEmitter implements ITestBedKafkaSe
       this.emit('ready');
       this.logService.LogMessage(`Connected to Kafka Server '${this.kafkaSettings.kafkaHost}'. `);
       this.adapter.on('message', (message) => this.HandleReceiveKafkaMessage(message));
-      this.adapter.on('error', (err) => this.logService.LogErrorMessage(`Consumer received an error: ${err}`));
-      this.adapter.on('offsetOutOfRange', (err) => this.logService.LogErrorMessage(`Consumer received an offsetOutOfRange error: ${err}`));
+      this.adapter.on('error', (err) => this.logService.LogErrorMessage(`KAFKA: Consumer received an error: ${err}`));
+      this.adapter.on('offsetOutOfRange', (err) => this.logService.LogErrorMessage(`KAFKA: Consumer received an offsetOutOfRange error: ${err}`));
     });
   }
 
   public ConnectToKafka(): void {
-    this.adapter.connect();
+    if (this.Settings.connectToKafka) {
+      this.logService.LogMessage(`Start connecting to Kafka Server '${this.kafkaSettings.kafkaHost}'.`);
+      this.adapter.connect();
+    } else {
+      this.logService.LogMessage(`Connect to KAFKA diabled in configuration.`);
+    }
   }
 
   public get Settings() {

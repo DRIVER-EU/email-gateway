@@ -17,8 +17,8 @@ import { IPostfixMailServerManagementService } from '../services/postfix-mailser
 import { ConvertSimEntityToMail } from '../helpers/convert-sim-entity-to-mail';
 
 import { ISimulationEntityPost, MediumTypes } from '../models/simulation-entity-post';
+import { GlobalConst } from './../global-const';
 
-const defaultMailPassword = 'default';
 const maxQueueSize = 200;
 
 export class SimEntityPost2MailServerManager {
@@ -29,6 +29,10 @@ export class SimEntityPost2MailServerManager {
         private configService: IConfigService,
         private postfixService: IPostfixMailServerManagementService) {
 
+    }
+
+    public reset() {
+        // Do nothing
     }
 
     public start() {
@@ -71,7 +75,7 @@ export class SimEntityPost2MailServerManager {
 
     private async publishPostToMailServer(post: ISimulationEntityPost) {
         try {
-            this.logService.LogMessage(`Start publishing post ${post.guid} to mail server.`);
+            this.logService.LogMessage(`Start publishing post '${post.guid}' to mail server.`);
             // Convert ISimulationEntityPost to NodeMailer object
             let convertToMail = new ConvertSimEntityToMail(this.logService, this.configService, post);
             const mailMessage: MailEnvelop = await convertToMail.GetMailMessage();
@@ -79,7 +83,7 @@ export class SimEntityPost2MailServerManager {
              await this.postfixService.addEMailAddressesAdv(convertToMail.FromMailAccount());
              await this.postfixService.addEMailAddressesAdv(convertToMail.ToMailAccounts());
              const from = convertToMail.FromMailAccount()[0];
-             let smtpClient = nodemailer.createTransport(this.connectConfiguration(from.address, defaultMailPassword));
+             let smtpClient = nodemailer.createTransport(this.connectConfiguration(from.address, GlobalConst.defaultMailPassword));
              if (await smtpClient.verify()) { // Validate account
                 // The attachments are automatically handled by node mailer.
                 const response: SentMessageInfo = await smtpClient.sendMail(mailMessage);
@@ -101,7 +105,7 @@ export class SimEntityPost2MailServerManager {
         requireTLS: true,
         auth: {
           user: username,
-          pass: defaultMailPassword
+          pass: password
         },
         logger: true,
         debug: false,

@@ -30,6 +30,11 @@ export class MailBoxStatus {
         // FileSystem.writeFileSync(this.getMailStatusFile(), JSON.stringify(this.mailBoxes, null, 2) , 'utf-8');
     }
 
+    public reset() {
+        this.mailBoxes = new Map<string, IMailboxStatus>();
+        this.save();
+    }
+
     public update(mailaccount: string, uuid: number) {
         this.mailBoxes.set(mailaccount, { latestUid: uuid });
     }

@@ -20,6 +20,7 @@ const validUrl = require('valid-url');
 const FileSystem = require('fs');
 const Util = require('util');
 const Path = require('path');
+const btoa = require('btoa');
 
 const writeFileAsync = Util.promisify(FileSystem.writeFile);
 
@@ -46,28 +47,58 @@ export class ConvertSimEntityToMail {
     // The nodemailer also download the file, used to check if attachment is aval (or else nodemailer throws error)
     public async downloadAttachments() {
         if ((this.mailEntity.files)) {
-            const downloadFolder = this.getUploadFolder();
+            const downloadFolder = this.getDownloadFolder();
             for (let attachment in this.mailEntity.files) {
                 try {
-                    let fileUrl = this.mailEntity.files[attachment];
-                    if (validUrl.isUri(fileUrl)) {
-                        const filename = new Date().getTime() + ' ' + this.urlToFilename(fileUrl);
+                    let content = this.mailEntity.files[attachment];
+                    if (validUrl.isUri(content)) {
+                        const name = this.urlToFilename(content);
+                        const filename = new Date().getTime() + '_' + name;
                         const file = Path.resolve(downloadFolder, filename);
-                        const response = await downloadFile(fileUrl, file);
-                        this.attachments.push(this.ConvertFileToAttachementUrl(fileUrl));
+                        try {
+                           const response = await downloadFile(content, file);
+                           this.logService.LogMessage(`Mail '${this.mailEntity.guid}': downloaded attachment (location: ${file}) `);
+                           // // Use this if nodemailer must download file, nodemailer will fail is attachment is not downloadable: this.attachments.push(this.ConvertFileToAttachementUrl(content)); 
+                           const attachment = this.createFileAttachement(filename, name);
+                           this.attachments.push(attachment);
+                        } catch (downloadError) {
+                            this.logService.LogErrorMessage(`Mail '${this.mailEntity.guid}': failed to downloaded attachment ${content} `);
+                            const attachment = this.createTextAttachement(`Error_${new Date().getTime()}.txt`, `Failed to download ${content}.`);
+                            this.attachments.push(attachment);
+                        }
                     } else {
-                        const uploadFolder = this.getUploadFolder();
-                        const filename = new Date().getTime() + '_content ';
-                        const downloadFile =  Path.resolve(downloadFolder, filename);
-                        await writeFileAsync(downloadFile, fileUrl);
-                        const response = await uploadFileToLargeFileService(this.configService.LargFileServiceUrl, downloadFile, true);
-                        const responseJson = JSON.parse(response.body);
-                        this.attachments.push(this.ConvertFileToAttachementUrl(responseJson.FileURL));
+                        try {
+                            const base64Content = this.isBase64(content) ? content : btoa(content);
+                            const filename = new Date().getTime() + '_content ';
+                            const fullFileName =  Path.resolve(downloadFolder, filename);
+                            await writeFileAsync(fullFileName, base64Content, 'base64');
+                            this.logService.LogMessage(`Mail '${this.mailEntity.guid}': saved attachment (location: ${fullFileName}) `);
+                            this.attachments.push(this.createFileAttachement(fullFileName, filename));
+                            // Place in large file storage (not  needed)
+                            // try {
+                            //   const response = await uploadFileToLargeFileService(this.configService.LargFileServiceUrl, saveFile, true);
+                            //   const responseJson = JSON.parse(response.body);
+                            //   this.attachments.push(this.createUrlAttachement(responseJson.FileURL, filename));
+                            // } catch(e) {
+                            // }
+                        } catch(error) {
+                            this.logService.LogErrorMessage(`Mail '${this.mailEntity.guid}': failed to save attachment `);
+                            const attachment = this.createTextAttachement(`Error_${new Date().getTime()}.txt`, `Failed to save content`);
+                        }
                     }
                 } catch (ex) {
                     this.logService.LogErrorMessage('Failed to download' + ex);
                 }
             }
+        }
+    }
+
+    private isBase64(content: string): boolean {
+        if (content === '' || content.trim() === '') { return false; }
+        try {
+            return btoa(atob(content)) === content;
+        } catch (err) {
+            return false;
         }
     }
 
@@ -123,14 +154,32 @@ export class ConvertSimEntityToMail {
         return filename;
     }
 
-    private ConvertFileToAttachement(fileName: string, contentBase64: string): Attachment {
+    private createUrlAttachement(url: string, name: string) {
         const attachment: Attachment = {
-            filename: fileName,
-            content: Buffer.from(contentBase64, 'base64'),
-            contentType: 'text/plain'
+            filename: name,
+            path: url
         };
         return attachment;
     }
+
+    private createFileAttachement(filename: string, name: string) {
+        const attachment: Attachment = {
+            filename: name,
+            path: filename
+        };
+        return attachment;
+    }
+
+    private createTextAttachement(name: string, content: string): Attachment {
+        const attachment: Attachment = {
+            filename: name,
+            content: Buffer.from(btoa(content), 'base64'),
+            contentType: 'text/plain',
+            encoding: 'base64'
+        };
+        return attachment;
+    }
+
 
     public FromMailAccount() {
         return mailAddressConverter(this.mailEntity.senderName);
@@ -154,8 +203,8 @@ export class ConvertSimEntityToMail {
         return d;
     }
 
-    private getUploadFolder(): string {
-        const downloadFolder = Path.resolve(__dirname, './../../upload');
+    private getDownloadFolder(): string {
+        const downloadFolder = Path.resolve(__dirname, './../../download');
         if (!FileSystem.existsSync(downloadFolder)) {
             FileSystem.mkdirSync(downloadFolder);
         }

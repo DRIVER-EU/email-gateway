@@ -7,8 +7,8 @@ const uuidv4 = require('uuid/v4');
 export const testPost: ISimulationEntityPost = {
     mediumType: MediumTypes.MAIL,
     guid: uuidv4(),
-    senderName: '"Mister ABC <ABC@demo.com>',
-    recipients: [ '"Mister DEF <DEF@demo.com>", "GHI@demo.com'],
+    senderName: 'Person a <a@demo.com>',
+    recipients: [ 'Person b <b@demo.com>', 'c@demo.com'],
     name: 'This is the subject of the mail',
     body: '<b>Hello reader</b><br>This is the message',
     date: new Date(2019 /* year */, 9 /* month */, 17 /* day */, 15 /* hour */, 30 /* min */).getTime(),
@@ -16,6 +16,8 @@ export const testPost: ISimulationEntityPost = {
     mediumName: '',
     visibleForParticipant: true,
     files: [
-        'http://localhost/testfile'
+        'http://localhost/testfile',
+        'dit is gewoon een tekst bericht',
+        'ZGl0IGlzIGdld29vbiBlZW4gdGVrc3QgYmVyaWNodA==' /* base64 meesage */
     ]
   };

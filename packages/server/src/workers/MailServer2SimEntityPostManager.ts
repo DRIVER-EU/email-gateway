@@ -34,6 +34,11 @@ export class MailServer2SimEntityPostManager  extends EventEmitter implements IM
         this.status = new MailBoxStatus(logService);
     }
 
+    
+    public reset() {
+        this.status.reset();
+    }
+
     public start() {
         this.stop_processing = false;
         this.checkMailBoxes();

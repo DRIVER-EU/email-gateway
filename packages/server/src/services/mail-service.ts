@@ -1,3 +1,4 @@
+
 /*
 Service:
 - Convert ISimulationEntityPost messages from KAFKA bus to mail server as e-mails
@@ -16,6 +17,8 @@ import { EventEmitter } from 'events';
 import { SimEntityPost2MailServerManager } from '../workers/SimEntityPost2MailServerManager';
 import { MailServer2SimEntityPostManager } from '../workers/MailServer2SimEntityPostManager';
 
+import { GlobalConst } from './../global-const';
+
 import { testPost } from '../testdata/testdata';
 
 const Fs = require('fs');
@@ -25,6 +28,7 @@ const Request = require('request');
 import Url = require('url');
 
 // https://community.nodemailer.com/
+
 
 // Configuration settings for this service
 export interface ISmtpSettings {
@@ -40,6 +44,7 @@ export interface IMapSettings {
 
 export interface IMailService {
   enqueueSimulationEntityPost(msg: ISimulationEntityPost): void;
+  reset(): void;
 }
 
 import axios = require('axios');
@@ -76,7 +81,7 @@ export class MailService implements IMailService {
 
 
 
-    // this.exportToMailManager.enqueue(testPost);
+     this.exportToMailManager.enqueue(testPost);
 
   }
 
@@ -90,13 +95,27 @@ export class MailService implements IMailService {
   }
 
   public enqueueSimulationEntityPost(msg: ISimulationEntityPost) {
-    if (msg.mediumType === MediumTypes.MAIL) {
-      this.exportToMailManager.enqueue(msg); // queue for processing
+    if (msg.guid === 'RESET_SCENARIO_REMOVE_ALL') {
+      this.logService.LogErrorMessage(`Received CLEAR mailserver command, clear mailsever`);
+      this.reset();
+    } else if  (msg.owner === GlobalConst.mailOwner) {
+        /* prevent handling messages injecten by this service */
+    } else if (msg.mediumType === MediumTypes.MAIL) {
+        this.exportToMailManager.enqueue(msg); // queue for processing
+    } else {
+      // This is allowed, since not all messages are mails
     }
   }
 
 
-
+   public reset() {
+    this.exportToMailManager.reset();
+    this.exportToKafkaManager.reset();
+    this.postfixService.reset()
+      .catch(error => {
+        this.logService.LogErrorMessage(`Failed to reset the mailserver (${error}).`);
+      });
+   }
 
 
 }

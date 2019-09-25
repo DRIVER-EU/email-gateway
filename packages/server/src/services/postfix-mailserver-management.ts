@@ -1,13 +1,13 @@
 import { AddMailAccountResult, DeleteMailAccountResult, ResetResult } from './../../swagger_codegenerator/generated_code/api';
 import { MailManagementApi, Configuration, MailAccountsResult } from './../generated_rest_api/index';
-// import { MAILSERVER_BASE_PATH } from './../config';
-import mailAddressesParser = require('nodemailer/lib/addressparser');
 import { Address  } from 'nodemailer/lib/mailer';
 import { mailAddressConverter } from './../helpers/mailAdressesConverter';
 
 // Services:
 import { IConfigService } from './config-service';
 import { ILogService } from './log-service';
+
+import { GlobalConst } from './../global-const';
 
 export interface IPostfixMailServerManagementService {
     mailAccounts(): Promise<string[]>;
@@ -19,9 +19,6 @@ export interface IPostfixMailServerManagementService {
     reset(): Promise<ResetResult>;
 }
 
- const defaultMailPassword = 'default';
-
-
 export class PostfixMailServerManagementService implements IPostfixMailServerManagementService {
     private restClient: MailManagementApi;
 
@@ -30,7 +27,6 @@ export class PostfixMailServerManagementService implements IPostfixMailServerMan
         private configService: IConfigService) {
         const url = configService.ApiMailServerUrl.replace(/\/+$/, '');
         logService.LogMessage(`Use url '${url}' mail server api.`);
-        
         this.restClient = new MailManagementApi(undefined, url, undefined);
     }
 
@@ -57,14 +53,15 @@ export class PostfixMailServerManagementService implements IPostfixMailServerMan
     }
 
     async addMailAdressInternal(mailAddress: Address): Promise<void> {
+        const address = mailAddress.address.toLocaleLowerCase(); /* for some reason capital login fails */
         const mailAccounts = await this.restClient.mailAccounts();
-        if (!mailAccounts.Accounts.includes(mailAddress.address)) {
-            this.logService.LogMessage('Add account  ' + mailAddress.address + ' with password ' + defaultMailPassword + ' to mailserver');
-            this.restClient.addAccount(defaultMailPassword, mailAddress.address)
+        if (!mailAccounts.Accounts.includes(address)) {
+            this.logService.LogMessage(`Add account  '${address}' with password '${GlobalConst.defaultMailPassword}' to mailserver`);
+            this.restClient.addAccount( GlobalConst.defaultMailPassword, address)
             .then((result: AddMailAccountResult) => {
-                 this.logService.LogMessage(result.Msg);
+                 this.logService.LogMessage(`Add mail account response: ${result.Msg}.`);
             })
-            .catch((reason: any) => this.logService.LogErrorMessage(`Failed to add mail account ${mailAddress.address}; error ${reason}` ));
+            .catch((reason: any) => this.logService.LogErrorMessage(`Failed to add mail account ${address}; error ${reason}` ));
         }
     }
 
@@ -77,6 +74,7 @@ export class PostfixMailServerManagementService implements IPostfixMailServerMan
     }
 
     public async reset(): Promise<ResetResult> {
+
         return this.restClient.resetbase();
     }
 }

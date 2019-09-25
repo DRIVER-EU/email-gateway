@@ -44,7 +44,7 @@ export class ReadMail extends EventEmitter implements IReadMail {
 
         this.uidLatest = latestMailUid;
         this.connectionCfg = {
-            user: mailaccount,
+            user: mailaccount.toLocaleLowerCase(), /* for some reason capital login fails */
             password: mailaccountPwd,
             host: imapCfg.IMapHost,
             port: imapCfg.IMapPort,

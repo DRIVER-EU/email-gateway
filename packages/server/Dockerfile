@@ -7,7 +7,7 @@ RUN npm run build
 
 FROM node:latest
 RUN mkdir -p /app
-COPY --from=builder /build/gateway-config.json /app/gateway-config.json
+# Done with ENV variables: COPY --from=builder /build/gateway-config.json /app/gateway-config.json
 COPY --from=builder /build/dist /app/dist
 COPY --from=builder /build/node_modules /app/dist/node_modules
 # COPY --from=builder /build/ /app/build
