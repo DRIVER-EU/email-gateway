@@ -1,6 +1,6 @@
 import { Statusresult } from './../generated_rest_api/api';
 import { Injectable } from '@angular/core';
-import { Configuration, ManagementApi, MailData, MailAccountsResultImpl,
+import { Configuration, ManagementApi, MailData, MailAccountsResultImpl, SimulationEntityPostData,
   DeleteMailAccountResultImpl, AddMailAccountResultImpl, ResetResultImpl } from './../generated_rest_api/index';
 import { environment } from '../environments/environment';
 
@@ -17,6 +17,10 @@ export class GatewayMailServerService {
 
   public async SendMail(mailData: MailData, useKafka: boolean) {
     return this.restClient.sendTestMail(mailData, useKafka);
+  }
+
+  public async testPost(mailData: SimulationEntityPostData, useKafka: boolean) {
+    return this.restClient.testSimulationEntityPost(mailData, useKafka);
   }
 
   public async getAccounts(): Promise<MailAccountsResultImpl> {

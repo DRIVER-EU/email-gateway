@@ -1,0 +1,29 @@
+
+<form  [formGroup]="mailForm" (ngSubmit)="onSubmitMailForm(mailForm.value)" class="mailFormStyle">
+    <h3>GENERATE TEST MAIL</h3>
+    <mat-form-field>
+        <input matInput type="datetime-local" placeholder="Timestamp (UTC)" formControlName="timestamp" class="textbox-style">
+      </mat-form-field>
+    <mat-form-field class="textbox-style">
+      <input  matInput placeholder="From"  id="from" type="text" formControlName="from" class="textbox-style">
+    </mat-form-field>
+    <mat-form-field class="textbox-style">
+      <input matInput placeholder="To"  id="to" type="text" formControlName="to"  class="textbox-style">
+    </mat-form-field>
+
+    <mat-form-field class="textbox-style">
+      <input matInput placeholder="Subject" id="subject" type="text" formControlName="subject"  class="textbox-style">
+    </mat-form-field>
+     <mat-form-field class="textbox-style">
+        <textarea matInput placeholder="Message" id="content" type="text" formControlName="content" ></textarea>
+    </mat-form-field>
+    <mat-form-field class="textbox-style">
+            <input matInput placeholder="Attachment (url)" id="attachment" type="text" formControlName="attachment"  class="textbox-style">
+    </mat-form-field>
+   
+    <button name="submit" class="button" type="submit">Submit</button>
+  </form>
+<br>
+
+ <button class="button" name="updateJSONbutton"  (click)="updateJSON($event)"><i class="material-icons">refresh</i> Update JSON</button>
+<pre>{{post | json}}</pre>

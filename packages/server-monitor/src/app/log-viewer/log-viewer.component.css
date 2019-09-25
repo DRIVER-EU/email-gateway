@@ -1,0 +1,11 @@
+.listLayout {
+    list-style-type: none;
+    padding: 0;
+    width: 100%;
+}
+
+.listLayout li {
+    cursor: pointer;
+    position: relative;
+    left: 0;
+  }

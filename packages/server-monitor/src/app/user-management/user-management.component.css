@@ -1,4 +1,12 @@
-.master {
+.FormStyle {
+  background: silver;
+  padding: 5px;
+}
 
-    margin-left: 20px;
-  }
+.AccountList {
+  background: silver;
+  padding: 5px;
+}
+.textbox-style {
+  width: 100%;
+}

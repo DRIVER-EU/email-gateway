@@ -1,0 +1,16 @@
+.form-style {
+    min-width: 150px;
+    width: 100%;
+  
+}
+ 
+
+.mailFormStyle {
+    background: silver;
+    padding: 5px;
+}
+
+ 
+.textbox-style {
+    width: 100%;
+}
