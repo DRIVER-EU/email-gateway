@@ -35,8 +35,6 @@ RUN npm install
 #.dockerignore holds directories that are skipped
 COPY  . .
 
-
-
 COPY mail-manager-app.conf /etc/supervisor/conf.d/
 
 
@@ -45,16 +43,7 @@ RUN dos2unix /home/node/app/*.sh
 
 RUN npm run build
 
-RUN usermod -aG sudo docker && \
-    usermod -aG sudo dovecot && \
-	usermod -aG sudo postfix && \
-	usermod -aG sudo amavis && \
-	mkdir  /tmp/docker-mailserver && \
-	touch /tmp/docker-mailserver/postfix-virtual.cf
-
- 
-RUN echo '%sudo ALL=(ALL) NOPASSWD:ALL' >> /etc/sudoers
-RUN echo '%docker ALL=(ALL) NOPASSWD:ALL' >> /etc/sudoers
+RUN mkdir /tmp/docker-mailserver 
 
 EXPOSE 3000
 
