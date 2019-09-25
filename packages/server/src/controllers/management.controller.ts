@@ -1,7 +1,7 @@
 import { Controller, Get, Inject, Param, Req, Put, Body, Query, ValidationPipe, Post } from '@nestjs/common';
 import { ApiResponse, ApiOperation, ApiImplicitParam, ApiUseTags, ApiImplicitBody, ApiImplicitQuery } from '@nestjs/swagger';
 import { ManagementService } from './management.service';
-import { MailData, Statusresult, MailAccountsResultImpl, AddMailAccountResultImpl, DeleteMailAccountResultImpl, ResetResultImpl } from './../models/rest/rest-models';
+import { MailData, SimulationEntityPostData, Statusresult, MailAccountsResultImpl, AddMailAccountResultImpl, DeleteMailAccountResultImpl, ResetResultImpl } from './../models/rest/rest-models';
 
 
 
@@ -24,7 +24,32 @@ export class ManagementController {
 
   constructor(private readonly service: ManagementService) {
   }
+  /******************************** SEND TEST MAIL ********************************************************/
+  @ApiOperation({
+    title: 'Test JSON ISimulationEntityPost injection (direct or KAFKA)',
+    description: '',
+    operationId: 'TestSimulationEntityPost'
+  })
+  @ApiResponse({
+    status: 200,
+    description: '',
+    type: String
+  })
 
+  @Put('TestSimulationEntityPost')
+  testPost(@Query('useKafka') useKafka: boolean, @Body() testPost: SimulationEntityPostData): String | void {
+    try {
+      const mediaPost = JSON.parse(testPost.PostAsJson) as ISimulationEntityPost;
+      if (useKafka === true) {
+        this.service.provider.TestBedKafkaService.sendSimulationEntityPostToKafka(mediaPost);
+      } else {
+        this.service.provider.MailGatewayService.enqueueSimulationEntityPost(mediaPost);
+      }
+      return '{  }';
+    } catch (error) {
+      return '{ Error: "Error ' + error + '"}';
+    }
+  }
 
   /******************************** SEND TEST MAIL ********************************************************/
   @ApiOperation({
@@ -59,31 +84,31 @@ export class ManagementController {
       location: undefined
     } as ISimulationEntityPost;
     if (useKafka === true) {
-      this.service.provider.TestBedKafkaService.send(mediaPost);
+      this.service.provider.TestBedKafkaService.sendSimulationEntityPostToKafka(mediaPost);
     } else {
       this.service.provider.MailGatewayService.enqueueSimulationEntityPost(mediaPost);
     }
     return 'Test mail send';
   }
-    /********************************  GET STATUS  ********************************************************/
-    @ApiOperation({
-      title: 'Get status',
-      description: 'Get status of server',
-      operationId: 'GetStatus',
-    })
-    @ApiResponse({
-      status: 200,
-      description: 'Returns the status of server',
-      type: Statusresult,
-    })
-    @Get('GetStatus')
-    async GetStatus(): Promise<Statusresult> {
-      const status = await this.service.provider.GetStatus();
-      const result: Statusresult = {
-        StatusAsJson: JSON.stringify(status)
-      };
-      return result;
-    }
+  /********************************  GET STATUS  ********************************************************/
+  @ApiOperation({
+    title: 'Get status',
+    description: 'Get status of server',
+    operationId: 'GetStatus',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Returns the status of server',
+    type: Statusresult,
+  })
+  @Get('GetStatus')
+  async GetStatus(): Promise<Statusresult> {
+    const status = await this.service.provider.GetStatus();
+    const result: Statusresult = {
+      StatusAsJson: JSON.stringify(status)
+    };
+    return result;
+  }
 
   /********************************  GET MAIL ACOUNTS ********************************************************/
   @ApiOperation({
@@ -169,7 +194,7 @@ export class ManagementController {
   async Reset(): Promise<ResetResultImpl> {
     this.service.provider.MailGatewayService.reset();
     const result: ResetResultImpl = {
-       Msg: 'Cleared database'
+      Msg: 'Cleared database'
     };
     return result;
   }

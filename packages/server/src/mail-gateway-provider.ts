@@ -35,9 +35,9 @@ export class MailGatewayProvider {
         this.postfixService = new PostfixMailServerManagementService(this.logService, this.configService);
         this.mailGatewayService = new MailService(this.logService, this.configService, this.kafkaTestBedService, this.postfixService);
         this.kafkaTestBedService.on('ready', () => {
-            this.kafkaTestBedService.send(posts);
+            // this.kafkaTestBedService.sendSimulationEntityPostToKafka(posts);
         });
-        this.kafkaTestBedService.ConnectToKafka();
+        this.kafkaTestBedService.connectToKafka();
     }
 
     public SetServer(server: NestExpressApplication) {

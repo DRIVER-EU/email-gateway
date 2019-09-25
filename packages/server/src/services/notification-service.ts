@@ -40,6 +40,13 @@ export class NotificationService implements OnGatewayConnection, OnGatewayDiscon
         }
     }
 
+    private BroadcastText(event: any, message: any) {
+        for (let c of this.wsClients) {
+            (c as any).emit(event, message);
+        }
+    }
+
+
 
     handleDisconnect(client: any) {
         for (let i = 0; i < this.wsClients.length; i++) {
@@ -52,7 +59,7 @@ export class NotificationService implements OnGatewayConnection, OnGatewayDiscon
     }
 
     public sendLogMessage(text: string) {
-        this.Broadcast('logmessage', text);
+        this.BroadcastText('logmessage', text);
     }
 
 

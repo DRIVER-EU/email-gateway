@@ -75,13 +75,13 @@ export class MailService implements IMailService {
     this.exportToMailManager = new SimEntityPost2MailServerManager(this.logService, this.configService, this.postfixService);
     this.exportToKafkaManager = new MailServer2SimEntityPostManager(this.logService, this.configService, this.postfixService);
     this.kafkaService.on('SimulationEntityPostMsg', msg => this.HandleSimulationEntityPostMsg(msg));
-    this.exportToKafkaManager.on('OnPost', post => this.handleKafkaPostMsg(post));
+    this.exportToKafkaManager.on('OnPost', post => this.handleConvertedMailToSimulationEntityPost(post));
     this.exportToMailManager.start(); // Background task to copy SimEntityPost to the mail server
     this.exportToKafkaManager.start(); // Background task to copy e-mails to SimEntityPost
 
 
 
-     this.exportToMailManager.enqueue(testPost);
+     // this.exportToMailManager.enqueue(testPost);
 
   }
 
@@ -90,8 +90,8 @@ export class MailService implements IMailService {
   }
 
   // Received converted mail to ISimulationEntityPost
-  private handleKafkaPostMsg(post: ISimulationEntityPost) {
-    this.kafkaService.send(post);
+  private handleConvertedMailToSimulationEntityPost(post: ISimulationEntityPost) {
+    this.kafkaService.sendSimulationEntityPostToKafka(post);
   }
 
   public enqueueSimulationEntityPost(msg: ISimulationEntityPost) {

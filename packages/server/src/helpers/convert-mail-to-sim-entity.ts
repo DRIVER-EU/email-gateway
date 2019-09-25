@@ -56,16 +56,17 @@ export class ConvertMailToSimEntity {
                   const responseJson = JSON.parse(response.body);
                   this.logService.LogMessage(`Mail ID '${this.mail.messageId}': attachement ${attachment.filename || '-'} stored under '${responseJson.FileURL}' (${attachment.size} bytes)`);
                   this.attachmentUrls.push(responseJson.FileURL);
-              } catch(e) {
-                  this.logService.LogErrorMessage('Failed to upload attachment to large file service ' + e);
+              } catch (e) {
+                  this.logService.LogErrorMessage(`Mail ID '${this.mail.messageId}': Failed to upload attachment to large file service (url ${this.configService.LargFileServiceUrl}), error: ${e} `);
+                  this.attachmentUrls.push(`Failed to publish attachment '${attachment.filename || '-'}' to large file service `);
               }
-              //this.logService.LogMessage(attachment.contentType);
-              //this.logService.LogMessage(attachment.filename || '');
-              //this.logService.LogMessage(attachment.size + '');
-              //FileSystem.writeFile(attachment.filename || 'unknown', attachment.content, 'binary', (error: Error) => {
-                //console.log('');
-              //});
-        
+              // this.logService.LogMessage(attachment.contentType);
+              // this.logService.LogMessage(attachment.filename || '');
+              // this.logService.LogMessage(attachment.size + '');
+              // FileSystem.writeFile(attachment.filename || 'unknown', attachment.content, 'binary', (error: Error) => {
+                // console.log('');
+              // });
+
             }
           }
     }

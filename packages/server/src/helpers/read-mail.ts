@@ -86,7 +86,7 @@ export class ReadMail extends EventEmitter implements IReadMail {
          if (err) {
              console.log(err);
          } else {
- 
+
              try {
                  // Search for new mails (Mails where UID is greater then latest UID)
                  // If the search should return Seq Number use: this.connection.seq.search
@@ -122,7 +122,7 @@ export class ReadMail extends EventEmitter implements IReadMail {
                                      if (NumberOfMsgToProcess === 0) this.connection.end();
                                  });
                              });
- 
+
                              msg.once('end', () => {
                                  // Called when attributes and body events are called!
                                  // Since simpleParser in body is async the mail body does't have to be parsed yet!!!!!!
@@ -132,7 +132,7 @@ export class ReadMail extends EventEmitter implements IReadMail {
                                  const { uid } = attrs;
                                  // uid_id = uid;
                              });
- 
+
                          });
                          //  When there is an error in fetching mails
                          fetchRequest.once('error', (error: Error) => {
@@ -140,7 +140,7 @@ export class ReadMail extends EventEmitter implements IReadMail {
                          });
                          fetchRequest.once('end', () => {
                              // The fetch is finished, but the mailParser could still be busy parsing the mail
- 
+
                          });
                      }
                  });
@@ -149,7 +149,7 @@ export class ReadMail extends EventEmitter implements IReadMail {
              }
          }
      }
- 
+
      */
 
     private ImapConnectionError(error: any) {

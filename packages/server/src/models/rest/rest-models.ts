@@ -3,6 +3,14 @@ import { AddMailAccountResult, MailAccountsResult, DeleteMailAccountResult, Rese
 
 // This file is not generated and can be edited!
 
+export class SimulationEntityPostData {
+    constructor(simulationEntityPostJson: string) {
+        this.PostAsJson = simulationEntityPostJson;
+    }
+    @ApiModelProperty({ required: true })
+    public PostAsJson: string;
+}
+
 export class MailData {
 
     constructor(from: string, to: string, subject: string, content: string) {

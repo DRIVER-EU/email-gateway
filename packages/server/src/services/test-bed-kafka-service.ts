@@ -26,9 +26,9 @@ export interface ITestBedKafkaService {
   // Fires when SimulationEntityPost is received
   on(event: 'SimulationEntityPostMsg', listener: (media: ISimulationEntityPost) => void): this;
   on(event: 'ready', listener: () => void): this;
-  ConnectToKafka(): void;
+  connectToKafka(): void;
   Settings: ITestBedAdapterSettings;
-  send(posts: ISimulationEntityPost | ISimulationEntityPost[]): void;
+  sendSimulationEntityPostToKafka(posts: ISimulationEntityPost | ISimulationEntityPost[]): void;
   isConnectedToKafka(): boolean;
   numberOfReceivedSimEnityPost: number;
   numberOfSendSimEnityPost: number;
@@ -86,7 +86,7 @@ export class TestBedKafkaService extends EventEmitter implements ITestBedKafkaSe
     });
   }
 
-  public ConnectToKafka(): void {
+  public connectToKafka(): void {
     if (this.Settings.connectToKafka) {
       this.logService.LogMessage(`Start connecting to Kafka Server '${this.kafkaSettings.kafkaHost}'.`);
       this.adapter.connect();
@@ -116,28 +116,30 @@ export class TestBedKafkaService extends EventEmitter implements ITestBedKafkaSe
     }
   }
 
-  public send(posts: ISimulationEntityPost | ISimulationEntityPost[]) {
-
-    if (!(posts instanceof Array)) {
-      posts = [posts];
-    }
-    posts.map((post: ISimulationEntityPost) => {
-      this.sendSimEnityPost++;
-      const payload = {
-        topic: this.Settings.mediaTopicName,
-        attributes: 1 /* GZIP */,
-        messages: post,
-      } as ProduceRequest;
-      this.adapter.send(payload, (err, data) => {
-        if (err) {
-          this.logService.LogErrorMessage('Fatal error sending KAFKA message, exit');
-          // process.exit(1);
-        } else {
-          this.logService.LogMessage('Kafka message send: ' + JSON.stringify(data, null, 2));
-        }
+  public sendSimulationEntityPostToKafka(posts: ISimulationEntityPost | ISimulationEntityPost[]) {
+    if (this.Settings.connectToKafka) {
+      if (!(posts instanceof Array)) {
+        posts = [posts];
+      }
+      posts.map((post: ISimulationEntityPost) => {
+        this.sendSimEnityPost++;
+        const payload = {
+          topic: this.Settings.mediaTopicName,
+          attributes: 1 /* GZIP */,
+          messages: post,
+        } as ProduceRequest;
+        this.adapter.send(payload, (err, data) => {
+          if (err) {
+            this.logService.LogErrorMessage('Fatal error sending KAFKA message: ' + err);
+            // process.exit(1);
+          } else {
+            this.logService.LogMessage('Kafka message send: ' + JSON.stringify(data, null, 2));
+          }
+        });
       });
-    });
-
+    } else {
+      this.logService.LogMessage('Kafka disabled in config, dont send post ');
+    }
   }
 
   isConnectedToKafka(): boolean {

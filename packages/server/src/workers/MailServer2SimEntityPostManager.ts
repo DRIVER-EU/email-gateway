@@ -34,7 +34,7 @@ export class MailServer2SimEntityPostManager  extends EventEmitter implements IM
         this.status = new MailBoxStatus(logService);
     }
 
-    
+
     public reset() {
         this.status.reset();
     }
@@ -52,15 +52,17 @@ export class MailServer2SimEntityPostManager  extends EventEmitter implements IM
         const checkMailBoxesInBackground = async() => {
           while (!this.stop_processing) {
             const nextTime = new Date().getTime() + (MailCheckIntervalInSeconds * 1000);
+            const startTime = new Date().getTime();
             try {
                 await this.CheckAllMailBoxes();
-            } catch(error) {
+            } catch (error) {
                 this.logService.LogErrorMessage('Exception when cheking mail boxes ' + error);
             }
 
             const sleepTime =  nextTime - new Date().getTime();
             if ((sleepTime > 0) && (!this.stop_processing)) {
-                this.logService.LogMessage('Finished checking all mailboxes, sleep for ' + sleepTime / 1000 + ' seconds');
+                const ellapsedTimeMs = Math.round((new Date().getTime() - startTime) / 1000);
+                this.logService.LogMessage(`Finished checking all outgoing mailboxes (${ellapsedTimeMs} sec.), sleep for ${Math.round(sleepTime / 1000)} sec.`);
                 await this.sleep(sleepTime);
             }
 
@@ -85,7 +87,7 @@ export class MailServer2SimEntityPostManager  extends EventEmitter implements IM
             console.log('error');
         }
         console.log('finished'); */
-        this.logService.LogMessage(`Checking ${accounts.length} mailboxes for new send mails` );
+        this.logService.LogMessage(`Checking ${accounts.length} mailboxes for outgoing mails` );
         for (let mailAccount in accounts) {
             if (!this.stop_processing) {
                 try {
@@ -106,7 +108,7 @@ export class MailServer2SimEntityPostManager  extends EventEmitter implements IM
             this.logService.LogMessage(`Foward mail from user '${mail.from.text}' send at ${(<Date>mail.date).toISOString()} with id ${mail.messageId} to kafka`);
             try {
                 await this.sendMailToKafka(mail);
-            } catch(e) {
+            } catch (e) {
                 this.logService.LogErrorMessage(e);
             }
 

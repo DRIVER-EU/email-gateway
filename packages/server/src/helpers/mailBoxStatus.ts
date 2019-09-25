@@ -55,7 +55,7 @@ export class MailBoxStatus {
                     this.mailBoxes.set(mailAccount, { latestUid: lastUid });
                 }
             }
-        } else this.logService.LogMessage(`Configuration file ${filename} not found`)
+        } else this.logService.LogMessage(`Configuration file ${filename} not found`);
     }
 
     private getMailStatusFile(): string {

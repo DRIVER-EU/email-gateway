@@ -58,7 +58,7 @@ export class ConvertSimEntityToMail {
                         try {
                            const response = await downloadFile(content, file);
                            this.logService.LogMessage(`Mail '${this.mailEntity.guid}': downloaded attachment (location: ${file}) `);
-                           // // Use this if nodemailer must download file, nodemailer will fail is attachment is not downloadable: this.attachments.push(this.ConvertFileToAttachementUrl(content)); 
+                           // // Use this if nodemailer must download file, nodemailer will fail is attachment is not downloadable: this.attachments.push(this.ConvertFileToAttachementUrl(content));
                            const attachment = this.createFileAttachement(filename, name);
                            this.attachments.push(attachment);
                         } catch (downloadError) {
@@ -81,7 +81,7 @@ export class ConvertSimEntityToMail {
                             //   this.attachments.push(this.createUrlAttachement(responseJson.FileURL, filename));
                             // } catch(e) {
                             // }
-                        } catch(error) {
+                        } catch (error) {
                             this.logService.LogErrorMessage(`Mail '${this.mailEntity.guid}': failed to save attachment `);
                             const attachment = this.createTextAttachement(`Error_${new Date().getTime()}.txt`, `Failed to save content`);
                         }
