@@ -23,7 +23,7 @@
      <hr>
 <mat-list>
     <mat-list-item *ngFor="let account of mailAccounts">
-        <button (click)="openAccount(account)">Open {{account}}</button> &nbsp; <button (click)="deleteAccount(account)">DEL</button>
+      <button (click)="deleteAccount(account)">DEL</button>&nbsp; <button (click)="openAccount(account)">Open {{account}}</button> 
     </mat-list-item>
 </mat-list>
 <br>

@@ -59,7 +59,7 @@ export class UserManagementComponent implements OnInit {
   }
 
   openAccount(accountName: string) {
-    window.open(`http://localhost:3000/?_user=${accountName}`, '_blank');
+    window.open(`http://localhost/?_user=${accountName}`, '_blank');
   }
   reset() {
     this.mailGatewayService.reset()
