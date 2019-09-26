@@ -1,0 +1,2 @@
+call docker build
+pause
