@@ -1,24 +1,44 @@
 # E-mail gateway
-Exchange e-mail messages between e-mail server  and KAFKA bus (ISimulationEntityPost)
+Exchange e-mail messages between e-mail server and KAFKA bus (ISimulationEntityPost)
 
+* Running in a complete standalone docker environment (no connection with other mail servers)
+* Runs out-of-the-box ((almost) no configuration)
+* Uses fully compatible SMTP/IMAP server (postfix server)
+* All domain names allowed for e-mail addresses
+* E-mail address are created on the fly, no need to configure
+* Attachments are supported (stored in Large File service)
+* Build-in web-based mail application (RoundCube)
+* Possible to use external mail applications like outlook, thunderbird
+* Web based management portal to monitor mail server
+* The timestamp of the mail message can be modified 
 
+## Getting started
 
-# E-mail server 
+The entire service can run in docker containers.
 
-The docker image 'tvial/docker-mailserver' is used a base docker image (<https://hub.docker.com/r/tvial/docker-mailserver/>) . The docker images runs the postfix mailserver implementation (<http://www.postfix.org/>). E-mail accounts can be created, deleted and listed with an shell scripts. The project "\packages\mail-manager\mail-server-api' is a NODE.JS application with a REST server interface (NEST.JS).  With this REST interface the e-mail accounts can be managed remote. The API documentation is available on http://localhost:3000/api and the OpenApi definition at http://localhost:3000/api-json (when server is running). The project contains a docker file to create a docker image that wraps all. Since the REST server execute shell scripts from the mail-server container, the application must always run in docker. 
+To build the docker images locally (will be placed in dockerhub in the future):
 
-The e-mail server is completely standalone and will NOT send or receive mail from other mail-servers. The e-mail server doesn't restrict the new e-mail account to a domain (e.g. user@company.nl, beheer@waterschap.nl can be added).  
+`Run 'email-gateway\docker\mailserver\BuildAllDockerImages.bat'`
 
+To run the service (will also start KAFKA, Large File Service etc.)
 
+`* Run 'StartDockerContainers.bat'`
 
-# Documentation
-* [Server documentation](packages/server/ReadMe.md)
-* [Mapping between KAFKA and MAIL server](documentation/mapping.md)
+`* Open webbrowser on port 4200`
 
+## Overview
 
+![Overview](documentation/Images/overview.png)
 
-# Docker 
+## Documentation
 
-To start the docker server goto directory '\docker\mailserver' and run 'docker-compose up'
+- [Server documentation](packages/server/ReadMe.md)
+- [Mapping between KAFKA and MAIL server](documentation/Mapping.md)
+
+## Known limitations
+
+* In the current situation all passwords for the mail accounts are the same. It is possible to provide each user his own password, but the service needs to known the password to check the outbox (sending messages to kafka)
+* The mailboxes and accounts are only persistent during the livetime of the docker container.
+* When enabled, the monitor-website is accessible for everyone.
 
 .
