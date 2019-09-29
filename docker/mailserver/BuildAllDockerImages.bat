@@ -1,2 +1,2 @@
-call docker build
+docker-compose build
 pause

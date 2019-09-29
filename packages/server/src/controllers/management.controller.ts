@@ -1,11 +1,12 @@
-import { Controller, Get, Inject, Param, Req, Put, Body, Query, ValidationPipe, Post } from '@nestjs/common';
+import { Controller, Get, Inject, Param, Req, Put, Body, Query, ValidationPipe, Post, HttpException, HttpStatus } from '@nestjs/common';
 import { ApiResponse, ApiOperation, ApiImplicitParam, ApiUseTags, ApiImplicitBody, ApiImplicitQuery } from '@nestjs/swagger';
 import { ManagementService } from './management.service';
 import { MailData, SimulationEntityPostData, Statusresult, MailAccountsResultImpl, AddMailAccountResultImpl, DeleteMailAccountResultImpl, ResetResultImpl } from './../models/rest/rest-models';
-
+import { getErrorMessage } from './../helpers/exceptions';
 
 
 import { ISimulationEntityPost, MediumTypes } from './../models/simulation-entity-post';
+import { MailServerException } from './../nestjs_exceptions/MailServerException';
 const uuidv4 = require('uuid/v4');
 
 /*
@@ -39,8 +40,10 @@ export class ManagementController {
   @Put('TestSimulationEntityPost')
   testPost(@Query('useKafka') useKafka: boolean, @Body() testPost: SimulationEntityPostData): String | void {
     try {
+      this.service.provider.LogService.LogMessage(`REST Controller TestSimulationEntityPost POST; use KAFKA = ${useKafka}`);
       const mediaPost = JSON.parse(testPost.PostAsJson) as ISimulationEntityPost;
-      if (useKafka === true) {
+      // TODO boolean is string ?!@
+      if ((useKafka + '').toLowerCase() === 'true') {
         this.service.provider.TestBedKafkaService.sendSimulationEntityPostToKafka(mediaPost);
       } else {
         this.service.provider.MailGatewayService.enqueueSimulationEntityPost(mediaPost);
@@ -123,11 +126,15 @@ export class ManagementController {
   })
   @Get('MailAccounts')
   async GetMailAccounts(): Promise<MailAccountsResultImpl> {
-    const acounts = await this.service.provider.PostfixService.mailAccounts();
-    const result: MailAccountsResultImpl = {
-      Accounts: acounts.filter(Boolean)
-    };
-    return result;
+    try {
+      const acounts = await this.service.provider.PostfixService.mailAccounts();
+      const result: MailAccountsResultImpl = {
+        Accounts: acounts.filter(Boolean)
+      };
+      return result;
+    } catch (e) {
+       throw new MailServerException(getErrorMessage(e));
+    }
   }
   /*******************************************************************************************/
   @ApiOperation({

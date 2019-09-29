@@ -86,6 +86,8 @@ export class MailService implements IMailService {
   }
 
   private HandleSimulationEntityPostMsg(msg: ISimulationEntityPost) {
+    if (!msg) return;
+    this.logService.LogMessage(`Place SimulationEntityPost ${msg.guid ||  '-'} in processing queue`);
     this.enqueueSimulationEntityPost(msg);
   }
 
@@ -102,6 +104,7 @@ export class MailService implements IMailService {
         /* prevent handling messages injecten by this service */
     } else if (msg.mediumType === MediumTypes.MAIL) {
         this.exportToMailManager.enqueue(msg); // queue for processing
+        this.logService.LogMessage(`Received KAFKA 'SimulationEntityPost' message, start processing: ${JSON.stringify(msg, null, 3)}`);
     } else {
       // This is allowed, since not all messages are mails
     }

@@ -24,6 +24,6 @@
     <button name="submit" class="button" type="submit">Submit</button>
   </form>
 <br>
-
- <button class="button" name="updateJSONbutton"  (click)="updateJSON($event)"><i class="material-icons">refresh</i> Update JSON</button>
+<mat-checkbox [(ngModel)]="useKafka">Place message on KAFKA bus</mat-checkbox><br>
+ <button class="btn-alignment" name="updateJSONbutton"  (click)="updateJSON($event)"><i class="material-icons">refresh</i> Update JSON</button>
 <pre>{{post | json}}</pre>

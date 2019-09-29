@@ -82,6 +82,7 @@ export class SimEntityPost2MailServerManager {
              // Create mail account in from and to on mail-server if don't exsist.
              await this.postfixService.addEMailAddressesAdv(convertToMail.FromMailAccount());
              await this.postfixService.addEMailAddressesAdv(convertToMail.ToMailAccounts());
+             await  this.sleep(2500); // Give server time to create account
              const from = convertToMail.FromMailAccount()[0];
              let smtpClient = nodemailer.createTransport(this.connectConfiguration(from.address, GlobalConst.defaultMailPassword));
              if (await smtpClient.verify()) { // Validate account

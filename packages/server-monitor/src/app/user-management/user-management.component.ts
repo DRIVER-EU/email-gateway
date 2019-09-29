@@ -2,20 +2,21 @@ import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup } from '@angular/forms';
 import { GatewayMailServerService } from './../gateway-mail-server.service';
 import { environment } from 'src/environments/environment';
-
+import { getErrorMessage } from './../exception-handling';
 @Component({
   selector: 'app-user-management',
   templateUrl: './user-management.component.html',
   styleUrls: ['./user-management.component.css']
 })
 export class UserManagementComponent implements OnInit {
-  showErrorMessage = false;
+  isInErrorState = false;
+  isLoading = true;
   errorMessage: string | undefined = undefined;
   mailAccounts: string[];
   addAccountForm: FormGroup;
 
   constructor(private mailGatewayService: GatewayMailServerService,
-    private formBuilder: FormBuilder) {
+              private formBuilder: FormBuilder) {
     this.addAccountForm = this.formBuilder.group({
       accountName: 'test@demo.com',
       password: 'default'
@@ -38,15 +39,19 @@ export class UserManagementComponent implements OnInit {
 
   async getMailAccounts() {
     try {
-      this.showErrorMessage = false;
+      this.isLoading = true;
       const accounts = await this.mailGatewayService.getAccounts();
       this.mailAccounts = accounts.Accounts;
+      this.isInErrorState = false;
 
     } catch (e) {
-      this.showErrorMessage = true;
+
+      this.isInErrorState = true;
       this.mailAccounts = [];
-      this.errorMessage = e;
+      this.errorMessage = getErrorMessage(e);
+      debugger;
     }
+    this.isLoading = false;
   }
 
   deleteAccount(accountName: string) {

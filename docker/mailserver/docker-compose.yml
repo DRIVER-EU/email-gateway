@@ -14,6 +14,8 @@ services:
     networks:
       static-network:
         ipv4_address: 10.5.0.6
+      default:
+      backend:
     depends_on:
     - mailserver
   mailserver:
@@ -33,6 +35,8 @@ services:
     networks:
       static-network:
         ipv4_address: 10.5.0.5
+      default:
+      backend:
 #    volumes:
 #     - ./mail/maildata:/var/mail
 #     - ./mail/mailstate:/var/mail-state
@@ -116,27 +120,31 @@ services:
       context: ./../../packages/server
       dockerfile: Dockerfile    
     ports:
+    # websocket notifications
     - "9996:9996"
+    # REST api 
     - "7891:7891"
     environment:
     - ApiMailServerUrl=http://10.5.0.5:3000
-    - LargeFileServiceUrl=http://localhost:9090/upload
-    - SmtpHost='10.5.0.5'
+    - LargeFileServiceUrl=http://large_file_service:9090/upload
+    - SmtpHost=10.5.0.5
     - SmtpPort=25
-    - IMapHost='10.5.0.5'
+    - IMapHost=10.5.0.5
     - IMapPort=993
-    - kafka_kafkaHost='broker:3501'
-    - kafka_schemaRegistryUrl='schema_registry:3502'
-    - kafka_mediaTopicName=Media
+    - kafka_kafkaHost=broker:9092
+    - kafka_schemaRegistryUrl=schema_registry:3502
+    - kafka_mediaTopicName=simulation_entity_post
+    - kafka_connectToKafka=true
+    - server_port=7891
     depends_on:
     - mailserver
     - broker
     - large_file_service
-    links:
-    - mailserver    
+    - schema_registry
     networks:
       static-network:
         ipv4_address: 10.5.0.10   
+      default:
     restart: always
   mailmonitor:
     image: mailmonitor
@@ -153,6 +161,8 @@ services:
     networks:
       static-network:
         ipv4_address: 10.5.0.11  
+      default:
+      backend:
     restart: always
     
   zookeeper:
@@ -160,6 +170,9 @@ services:
     hostname: zookeeper
     ports:
       - '3500:3500'
+    networks:
+      - default
+      - backend
     environment:
       ZOOKEEPER_CLIENT_PORT: 3500
       ZOOKEEPER_TICK_TIME: 2000
@@ -190,6 +203,9 @@ services:
       - broker
     ports:
       - '3502:3502'
+    networks:
+      - default
+      - backend
     environment:
       SCHEMA_REGISTRY_HOST_NAME: schema_registry
       SCHEMA_REGISTRY_LISTENERS: 'http://0.0.0.0:3502'
@@ -205,6 +221,9 @@ services:
       - broker
     ports:
       - '8082:8082'
+    networks:
+      - default
+      - backend
     environment:
       KAFKA_REST_HOST_NAME: kafka_rest
       KAFKA_REST_BOOTSTRAP_SERVERS: 'PLAINTEXT://broker:9092'
@@ -222,6 +241,9 @@ services:
       - kafka_rest
     ports:
       - '3600:8000'
+    networks:
+      - default
+      - backend
     environment:
       KAFKA_REST_PROXY_URL: 'http://kafka_rest:8082'
       PROXY: 'true'
@@ -233,14 +255,21 @@ services:
       - schema_registry
     ports:
       - '3601:8000'
+    networks:
+      - default
+      - backend
     environment:
       SCHEMAREGISTRY_URL: 'http://schema_registry:3502'
       PROXY: 'true'
       
   large_file_service:
     image: drivereu/large-file-service:latest
+    hostname: large_file_service
     ports:
       - '9090:9090'
+    networks:
+      - default
+      - backend
     environment:
       HOST: localhost
       PORT: 9090
@@ -257,4 +286,5 @@ networks:
      config:
        - subnet: 10.5.0.0/16
          gateway: 10.5.0.1
-
+  backend:
+    driver: "bridge"

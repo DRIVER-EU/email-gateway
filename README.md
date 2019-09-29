@@ -34,6 +34,7 @@ To run the service (will also start KAFKA, Large File Service etc.)
 
 - [Server documentation](packages/server/ReadMe.md)
 - [Mapping between KAFKA and MAIL server](documentation/Mapping.md)
+- [Configuration](documentation/Configuration.md)
 
 ## Known limitations
 

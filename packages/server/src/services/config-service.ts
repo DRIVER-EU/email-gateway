@@ -24,6 +24,7 @@ export interface IConfigService {
     KafkaSettings: ITestBedAdapterSettings;
     IMapSettings: IMapSettings;
     NestServerPortNumber: number;
+    WebsockNotificationPort: number;
     LargFileServiceUrl: string;
     ApiMailServerUrl: string;
 }
@@ -66,7 +67,7 @@ export class ConfigService extends EventEmitter implements IConfigService {
         console.log(`Use configuration file '${cfgFile}'.`);
 
         try {
-            if (!fs.existsSync(cfgFile)) console.error(`Configuration file $(cfgFile) not found.`);
+            if (!fs.existsSync(cfgFile)) console.error(`Configuration file ${cfgFile} not found, fallback to default values (and enviroment var.).`);
           } catch (err) {
 
           }
@@ -86,6 +87,10 @@ export class ConfigService extends EventEmitter implements IConfigService {
 
     get NestServerPortNumber(): number {
         return nconf.get('server:port') || 7891;
+    }
+
+    get WebsockNotificationPort(): number {
+        return nconf.get('server:WebsocketNotificationPort') || 9996;
     }
 
     get LargFileServiceUrl(): string {

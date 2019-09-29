@@ -14,3 +14,8 @@
 .textbox-style {
     width: 100%;
 }
+
+.btn-alignment{
+    margin: 0 auto;
+    vertical-align: middle;
+}

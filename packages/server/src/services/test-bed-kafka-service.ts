@@ -69,8 +69,9 @@ export class TestBedKafkaService extends EventEmitter implements ITestBedKafkaSe
       clientId: this.kafkaSettings.kafkaClientId,
       autoRegisterSchemas: true /* this.kafkaSettings.autoRegisterSchemas, */,
       schemaFolder: schemaPath,
-      consume: [{ topic: this.kafkaSettings.mediaTopicName }],
-      produce: [this.kafkaSettings.mediaTopicName],
+      /* TODO register topic other place */
+      consume: [{ topic: this.kafkaSettings.mediaTopicName  },  { topic: 'system_timing' }, { topic: 'system_topic_access_invite' }, { topic: 'system_heartbeat' }, { topic: 'system_logging' }],
+      produce: [this.kafkaSettings.mediaTopicName,  'system_timing', 'system_topic_access_invite', 'system_heartbeat', 'system_logging' ],
       logging: {
         logToConsole: LogLevel.Info,
         logToKafka: LogLevel.Warn,
@@ -102,8 +103,9 @@ export class TestBedKafkaService extends EventEmitter implements ITestBedKafkaSe
 
   // Received a message on KAFKA bus
   private HandleReceiveKafkaMessage(message: IAdapterMessage) {
+    if (message.topic.startsWith('system_')) return;
     const stringify = (m: string | Object) => typeof m === 'string' ? m : JSON.stringify(m, null, 2);
-    this.logService.LogMessage(`Received  ${stringify(message.key)}: ${stringify(message.value)}`);
+    // this.logService.LogMessage(`Received KAFKA message ${stringify(message.key)}: ${stringify(message.value)}`);
     // Check topic name:
     switch (message.topic.toLowerCase()) {
       case this.Settings.mediaTopicName.toLowerCase():
@@ -111,7 +113,7 @@ export class TestBedKafkaService extends EventEmitter implements ITestBedKafkaSe
         this.emit('SimulationEntityPostMsg', message.value as ISimulationEntityPost);
         break;
       default:
-        this.logService.LogMessage(`Unknown topic {message.topic} in kafka bus.`);
+        this.logService.LogMessage(`Received KAFKA topic ${message.topic}, ignore.`);
         break;
     }
   }
@@ -128,12 +130,13 @@ export class TestBedKafkaService extends EventEmitter implements ITestBedKafkaSe
           attributes: 1 /* GZIP */,
           messages: post,
         } as ProduceRequest;
+        this.logService.LogMessage(`Send SimulationEnityPost to KAFKA: ${JSON.stringify(payload, null, 2)} `);
         this.adapter.send(payload, (err, data) => {
           if (err) {
             this.logService.LogErrorMessage('Fatal error sending KAFKA message: ' + err);
             // process.exit(1);
           } else {
-            this.logService.LogMessage('Kafka message send: ' + JSON.stringify(data, null, 2));
+            this.logService.LogMessage(`Reply KAFKA: ${JSON.stringify(data, null, 2)} `);
           }
         });
       });

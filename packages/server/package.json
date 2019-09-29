@@ -50,6 +50,7 @@
     "valid-url": "^1.0.9"
   },
   "devDependencies": {
+    "@types/node-fetch": "^2.5.2",
     "@types/nodemailer": "^4.6.8",
     "@types/nodemailer-direct-transport": "^1.0.31",
     "@types/nodemailer-smtp-transport": "^2.7.4",

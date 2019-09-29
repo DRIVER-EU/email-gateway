@@ -1,26 +1,37 @@
-
-
-<div [hidden]="!showErrorMessage">
-    <div class="alert alert-danger">
-      {{errorMessage}}
-    </div>
-  </div>
-  <form [formGroup]="inputform" (ngSubmit)="onSubmit(addAccountForm.value)" class="FormStyle">
-      <h4>Create e-mail account</h4>
-      <mat-form-field>
-          <input matInput placeholder="Account name"  id="accountName" type="text" formControlName="accountName"  class="textbox-style">
-        </mat-form-field>
-        <button class="button" type="submit"><i class="material-icons">add</i></button>
-  </form>
-     <hr>
-<div class="AccountList">
-  <h4>Mail accounts</h4>
-<mat-list>
-    <mat-list-item *ngFor="let account of mailAccounts">
-      <button (click)="deleteAccount(account)"><i class="material-icons">delete</i></button>&nbsp; <button (click)="openAccount(account)">Open {{account}}</button> 
-    </mat-list-item>
-</mat-list>
+<div *ngIf="isLoading">
+    
 </div>
-<br>
-<br>
-<button (click)="reset()">Reset database</button>
+
+<div *ngIf="isInErrorState">
+  <div class="alert alert-danger">
+    Error: {{errorMessage}}
+  </div>
+</div>
+<div *ngIf="!isLoading; else loading">
+<div *ngIf="!isInErrorState">
+  <form [formGroup]="addAccountForm" (ngSubmit)="onSubmit(addAccountForm.value)" class="FormStyle">
+    <h4>Create e-mail account</h4>
+    <mat-form-field>
+      <input matInput placeholder="Account name" id="accountName" type="text" formControlName="accountName"
+        class="textbox-style">
+    </mat-form-field>
+    <button class="button" type="submit"><i class="material-icons">add</i></button>
+  </form>
+  <hr>
+  <div class="AccountList">
+    <h4>Mail accounts</h4>
+    <mat-list>
+      <mat-list-item *ngFor="let account of mailAccounts">
+        <button (click)="deleteAccount(account)"><i class="material-icons">delete</i></button>&nbsp; <button
+          (click)="openAccount(account)">Open {{account}}</button>
+      </mat-list-item>
+    </mat-list>
+  </div>
+  <br>
+  <br>
+  <button (click)="reset()">Reset database</button>
+</div>
+</div>
+<ng-template #loading>
+    <mat-spinner [diameter]="1"></mat-spinner>
+  </ng-template>
