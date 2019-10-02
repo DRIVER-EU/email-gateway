@@ -39,7 +39,6 @@ To run the service (will also start KAFKA, Large File Service etc.)
 ## Known limitations
 
 * In the current situation all passwords for the mail accounts are the same. It is possible to provide each user his own password, but the service needs to known the password to check the outbox (sending messages to kafka)
-* The mailboxes and accounts are only persistent during the livetime of the docker container.
 * When enabled, the monitor-website is accessible for everyone.
 
 .
