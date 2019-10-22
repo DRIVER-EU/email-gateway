@@ -114,7 +114,7 @@ services:
     - SYS_PTRACE
     restart: always
   mailgateway:
-    image: mailgateway
+    image: driver-mailgateway
     container_name: mailgateway
     build:
       context: ./../../packages/server
@@ -147,7 +147,7 @@ services:
       default:
     restart: always
   mailmonitor:
-    image: mailmonitor
+    image: driver-mailmonitor
     container_name: mailmonitor
     build:
       context: ./../../packages/server-monitor
