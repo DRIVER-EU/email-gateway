@@ -41,4 +41,15 @@ To run the service (will also start KAFKA, Large File Service etc.)
 * In the current situation all passwords for the mail accounts are the same. It is possible to provide each user his own password, but the service needs to known the password to check the outbox (sending messages to kafka)
 * When enabled, the monitor-website is accessible for everyone.
 
+## Docker images
+
+The docker-compose ' email-gateway\docker\mailserver\docker-compose.yml' starts a standalone local test environment. 
+
+The following docker images are created by this project:
+
+* driver-roundcube: Standard web-based e-mail client (roundcube.net)
+* driver-mailserver: A postfix mail-server extended with an REST API to manage the server ( http://www.postfix.org/)
+* driver-mailgateway: The e-mail gateway KAFKA <==> POSTFIX MAIL SERVER (NODE.JS )
+* driver-mailmonitor: Web-based management tool to monitor the e-mail gateway
+
 .
