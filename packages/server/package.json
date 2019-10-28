@@ -6,11 +6,11 @@
   "scripts": {
     "build": "tsc -p tsconfig.build.json",
     "format": "prettier --write \"src/**/*.ts\"",
-    "start": "ts-node -r tsconfig-paths/register src/main.ts",
+    "start": "npm run build && npm run start:prod",
     "start:dev": "nodemon",
     "start:debug": "nodemon --config nodemon-debug.json",
     "prestart:prod": "rimraf dist && npm run build",
-    "start:prod": "node dist/index.js",
+    "start:prod": "node dist/src/index.js",
     "lint": "tslint -p tsconfig.json -c tslint.json"
   },
   "author": "TNO",
@@ -54,6 +54,7 @@
     "@types/nodemailer": "^4.6.8",
     "@types/nodemailer-direct-transport": "^1.0.31",
     "@types/nodemailer-smtp-transport": "^2.7.4",
-    "@types/socket.io": "^2.1.2"
+    "@types/socket.io": "^2.1.2",
+    "rimraf": "^3.0.0"
   }
 }
