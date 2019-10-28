@@ -68,6 +68,4 @@ packages/server/dist/
 
 docker/mailserver/config/
 packages/mail-manager/mail-server-api/dist/
-packages/server/swagger_codegenerator/generated_code/
-packages/server-monitor/swagger_codegenerator/generated_code/
 packages/server/swagger_codegenerator _largefile/generated_code/
