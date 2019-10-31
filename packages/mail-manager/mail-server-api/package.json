@@ -8,13 +8,14 @@
     "build:dev": "tsc -p tsconfig.build.json",
     "build": "tsc",
     "format": "prettier --write \"src/**/*.ts\"",
-    "start": "ts-node -r tsconfig-paths/register src/main.ts",
+	"//": { "comment": "The mail server MUST run in docker container in order to work, run without docker for testing REST interface (debug mode)" },
+    "start": "npm run build && npm run start:prod",
     "start:dev": "nodemon",
     "start:debug": "nodemon --config nodemon-debug.json",
     "prestart:prod": "rimraf dist && npm run build",
     "start:prod": "node dist/main.js",
     "lint": "tslint -p tsconfig.json -c tslint.json",
-    "build_docker": "docker build -t driver-mailserver ."
+    "build_docker": "docker build -t drivereu-mailserver ."
   },
   "dependencies": {
     "@nestjs/common": "^6.0.0",

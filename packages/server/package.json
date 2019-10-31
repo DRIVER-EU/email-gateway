@@ -11,7 +11,10 @@
     "start:debug": "nodemon --config nodemon-debug.json",
     "prestart:prod": "rimraf dist && npm run build",
     "start:prod": "node dist/src/index.js",
-    "lint": "tslint -p tsconfig.json -c tslint.json"
+    "lint": "tslint -p tsconfig.json -c tslint.json",
+    "generate-rest": "cd swagger_codegenerator && GenerateCodeWithDocker.bat",
+    "//": { "comment": "build_dockerimage: Only for debug, use docker/mailserver/BuildAllDockerImages.bat to build docker images" },
+	"build_dockerimage": "docker build -t drivereu-mailgateway ."
   },
   "author": "TNO",
   "license": "MIT",

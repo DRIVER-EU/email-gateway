@@ -8,7 +8,7 @@
     "test": "ng test",
     "lint": "ng lint",
     "generate-rest-client": "cd swagger_codegenerator && GenerateCodeWithDocker.bat",
-    "build_dockerimage": "docker build -t mailmonitor ."
+    "build_dockerimage": "docker build -t drivereu-mailmonitor ."
   },
   "private": true,
   "dependencies": {
