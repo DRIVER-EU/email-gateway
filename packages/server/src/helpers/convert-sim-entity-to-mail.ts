@@ -197,16 +197,13 @@ export class ConvertSimEntityToMail {
         return this.mailEntity.body;
     }
 
-    // KAFAK used the Unix epoch (or Unix time or POSIX time or Unix timestamp) is the number of seconds that have elapsed since January 1, 1970 (midnight UTC/GMT),
-    // not counting leap seconds (in ISO 8601: 1970-01-01T00:00:00Z).
+    // KAFKA used the epoch time is the number of milli seconds that have elapsed since January 1, 1970 (midnight UTC/GMT)
     public Timestamp(): Date {
-        // const testDate = new Date('2018-04-11T10:20:30Z');
-        // const testEpochTime = testDate.getTime() / 1000 /* use sec instead of msec */;
-        // let testDate1 = new Date(0); // The 0 there is the key, which sets the date to the epoch
-        // testDate1.setUTCSeconds(testEpochTime /* number seconds since 1 jan 1970 */);
+        const testDate = new Date('2018-04-11T10:20:30Z');
+        const testEpochTime = testDate.getTime(); /* use sec instead of msec */;
+        let testDate1 = new Date(testEpochTime); // The 0 there is the key, which sets the date to the epoch
 
-        let d = new Date(0); // The 0 there is the key, which sets the date to the epoch
-        d.setUTCSeconds(this.mailEntity.date /* number seconds since 1 jan 1970 */);
+        let d = new Date(this.mailEntity.date ); /* number mseconds since 1 jan 1970 */
         return d;
     }
 

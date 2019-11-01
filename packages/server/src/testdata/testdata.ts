@@ -11,7 +11,7 @@ export const testPost: ISimulationEntityPost = {
     recipients: [ 'Person b <b@demo.com>', 'c@demo.com'],
     name: 'This is the subject of the mail',
     body: '<b>Hello reader</b><br>This is the message',
-    date: new Date('2019-04-11T10:20:30Z').getTime() / 1000 /* UNIX EPOCH TIME (convert msec to sec) */,
+    date: new Date('2019-12-11T10:20:30Z').getTime() /* EPOCH TIME (msec since 1970, 1 jan) */,
     owner: '',
     mediumName: '',
     visibleForParticipant: true,
