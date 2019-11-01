@@ -19,6 +19,9 @@ import { ConvertSimEntityToMail } from '../helpers/convert-sim-entity-to-mail';
 import { ISimulationEntityPost, MediumTypes } from '../models/simulation-entity-post';
 import { GlobalConst } from './../global-const';
 
+// Convert mail address
+import { mailAddressConverterSingleToString, mailAddressConverterToString } from './../helpers/mailAdressesConverter';
+
 const maxQueueSize = 200;
 
 export class SimEntityPost2MailServerManager {
@@ -79,6 +82,8 @@ export class SimEntityPost2MailServerManager {
             // Convert ISimulationEntityPost to NodeMailer object
             let convertToMail = new ConvertSimEntityToMail(this.logService, this.configService, post);
             const mailMessage: MailEnvelop = await convertToMail.GetMailMessage();
+            const dt = (Object.prototype.toString.call(mailMessage.date) === '[object Date]') ? ((mailMessage.date as Date).toISOString()) :  mailMessage.date;
+            this.logService.LogMessage(`Converted post ${post.guid} to mail ==> From: '${mailAddressConverterSingleToString(mailMessage.from)}' To: '${mailAddressConverterToString(mailMessage.to)}' Date: '${dt}' Subject: '${mailMessage.subject}'`);
              // Create mail account in from and to on mail-server if don't exsist.
              await this.postfixService.addEMailAddressesAdv(convertToMail.FromMailAccount());
              await this.postfixService.addEMailAddressesAdv(convertToMail.ToMailAccounts());

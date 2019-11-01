@@ -20,6 +20,25 @@ export function mailAddressConverterSingle(mailAddress:  string | Address | unde
     if (isString(mailAddress)) return mailAddressStringConverter(mailAddress)[0];
     return mailAddress;
 }
+
+// Convert to adress to string
+export function mailAddressToString(mailAddress: Address |  undefined) {
+    if (!mailAddress) return '';
+    return (mailAddress.name) ? `${mailAddress.name} (${mailAddress.address})` : `${mailAddress.address}`;
+}
+
+// Convert to adress to string
+export function mailAddressConverterSingleToString(mailAddress:  string | Address | undefined): string {
+    const address = mailAddressConverterSingle(mailAddress);
+    return mailAddressToString(address);
+}
+
+export function mailAddressConverterToString(to: string | Address | Array<string | Address> | undefined): string {
+    if (!to) return '';
+    const addresses = mailAddressConverter(to);
+    return addresses.map(o => mailAddressToString(o)).join(', ');
+}
+
 // Convert all email address formats to 1 type
 export function mailAddressConverter(mailAddress:  string | Address | Array<string | Address>): Address[] {
     if (mailAddress) {

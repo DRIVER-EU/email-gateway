@@ -5,15 +5,19 @@ The AVRO scheme can be found at: \sim\entity\simulation_entity_post-value.avsc
 | AVRO        | E-MAIL                | COMMENT                                                      |
 | ----------- | --------------------- | ------------------------------------------------------------ |
 | mediumType  |                       | Must always have value 'MAIL'                                |
-| guid:       |                       | Used in logging to identify post                             |
+| guid:       |                       | Used in logging to identify post. If the value is set  to 'RESET_SCENARIO_REMOVE_ALL' a reset on mail-server is done |
 | senderName  | From                  | Always one e-mail addresses                                  |
 | recipients  | To                    | One or more e-mail addresses (with ; as separator)           |
 |             | Bcc                   | Not mapped                                                   |
 |             | Header: x-gateway-key | Always 'KAFKA'                                               |
 | name        | Subject               |                                                              |
 | body        | body                  | Can be HTML or plain text                                    |
-| date        | Time sent             | This is the time shown in e-mail (in msec since 1970)        |
+| date        | Time sent             | This is the time shown in e-mail. The AVRO schema uses epoch time!       |
 | attachments |                       | Url links to the large file storage. When not a url, the content is handled as binary data (base64 encoded) |
+
+## What is epoch time?
+The Unix epoch (or Unix time or POSIX time or Unix timestamp) is the number of seconds that have elapsed since January 1, 1970 (midnight UTC/GMT), not counting leap seconds (in ISO 8601: 1970-01-01T00:00:00Z).
+Important: seconds is used, not msec !! 
 
 ## Attachments
 
