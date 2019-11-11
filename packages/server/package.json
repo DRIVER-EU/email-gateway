@@ -29,7 +29,7 @@
     "@types/mailparser": "^2.4.0",
     "@types/node": "^11.13.8",
     "@types/request": "^2.48.3",
-    "axios": "^0.18.0",
+    "axios": "^0.18.1",
     "btoa": "^1.2.1",
     "class-transformer": "^0.2.3",
     "class-validator": "^0.10.0",
