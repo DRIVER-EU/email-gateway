@@ -13,7 +13,7 @@ export class SendSimulationEntityPostComponent implements OnInit {
   private mailForm: FormGroup;
   useKafka = false;
   private post: any;
-   
+
 
   constructor(
     private mailGatewayService: GatewayMailServerService,
@@ -30,7 +30,6 @@ export class SendSimulationEntityPostComponent implements OnInit {
   }
 
   ngOnInit() {
-   
   }
 
   updateJSON() {
@@ -57,8 +56,7 @@ export class SendSimulationEntityPostComponent implements OnInit {
     this.guid = 'GUID_' + new Date().getTime();
     const dta: SimulationEntityPostData = {
       PostAsJson: JSON.stringify(this.post)
-    }
-    debugger;
+    };
     this.mailGatewayService.testPost(dta, this.useKafka)
     .then(x => alert('Succesfully published to server'))
     .catch(e => {
