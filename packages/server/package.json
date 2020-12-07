@@ -33,7 +33,7 @@
     "@types/request": "^2.48.5",
     "axios": "^0.18.1",
     "btoa": "^1.2.1",
-    "class-transformer": "^0.2.3",
+    "class-transformer": "^0.3.1",
     "class-validator": "^0.10.2",
     "event-to-promise": "^0.8.0",
     "imap": "^0.8.19",
