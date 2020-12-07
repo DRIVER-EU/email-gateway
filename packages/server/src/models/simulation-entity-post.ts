@@ -8,14 +8,13 @@ export const enum MediumTypes {
     SOCIAL_NETWORK = 'SOCIAL_NETWORK',
     VIDEO = 'VIDEO'
   }
-  
   /**
    * Common Simulation Space Post, representing a media entity inside the simulation world (e.g. email, news article, facebook post, etc.). *Copyright (C) 2017-2018 XVR Simulation B.V., Delft, The Netherlands, Martijn Hendriks <hendriks @ xvrsim.com>. This file is part of DRIVER+ WP923 Test-bed infrastructure project.
    * This file is licensed under the MIT license : https://github.com/DRIVER-EU/avro-schemas/blob/master/LICENSE*
    */
   export interface ISimulationEntityPost {
     /** Globally unique identifier for this post */
-    guid: string;
+    id: string;
     /** Name of this post */
     name: string;
     /** Identifier of the simulator currently responsible for this post */

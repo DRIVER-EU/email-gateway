@@ -78,12 +78,12 @@ export class SimEntityPost2MailServerManager {
 
     private async publishPostToMailServer(post: ISimulationEntityPost) {
         try {
-            this.logService.LogMessage(`Start publishing post '${post.guid}' to mail server.`);
+            this.logService.LogMessage(`Start publishing post '${post.id}' to mail server.`);
             // Convert ISimulationEntityPost to NodeMailer object
             let convertToMail = new ConvertSimEntityToMail(this.logService, this.configService, post);
             const mailMessage: MailEnvelop = await convertToMail.GetMailMessage();
             const dt = (Object.prototype.toString.call(mailMessage.date) === '[object Date]') ? ((mailMessage.date as Date).toISOString()) :  mailMessage.date;
-            this.logService.LogMessage(`Converted post ${post.guid} to mail ==> From: '${mailAddressConverterSingleToString(mailMessage.from)}' To: '${mailAddressConverterToString(mailMessage.to)}' Date: '${dt}' Subject: '${mailMessage.subject}'`);
+            this.logService.LogMessage(`Converted post ${post.id} to mail ==> From: '${mailAddressConverterSingleToString(mailMessage.from)}' To: '${mailAddressConverterToString(mailMessage.to)}' Date: '${dt}' Subject: '${mailMessage.subject}'`);
              // Create mail account in from and to on mail-server if don't exsist.
              await this.postfixService.addEMailAddressesAdv(convertToMail.FromMailAccount());
              await this.postfixService.addEMailAddressesAdv(convertToMail.ToMailAccounts());
@@ -93,13 +93,13 @@ export class SimEntityPost2MailServerManager {
              if (await smtpClient.verify()) { // Validate account
                 // The attachments are automatically handled by node mailer.
                 const response: SentMessageInfo = await smtpClient.sendMail(mailMessage);
-                this.logService.LogMessage(`Published post ${post.guid} to mail server with id ${response.messageId}.`);
+                this.logService.LogMessage(`Published post ${post.id} to mail server with id ${response.messageId}.`);
              } else {
-                 this.logService.LogErrorMessage(`Failed to connect to IMAP server to publish post ${post.guid}.`);
+                 this.logService.LogErrorMessage(`Failed to connect to IMAP server to publish post ${post.id}.`);
              }
 
         } catch (e) {
-          this.logService.LogErrorMessage(`Failed to send message ${post.guid}: ${e}`);
+          this.logService.LogErrorMessage(`Failed to send message ${post.id}: ${e}`);
         }
     }
 

@@ -1,2 +1,2 @@
-call docker-compose up
+call docker-compose up -d
 pause

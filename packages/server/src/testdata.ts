@@ -5,7 +5,7 @@ import { ISimulationEntityPost, MediumTypes } from './models/simulation-entity-p
 
 export const posts: ISimulationEntityPost[] = [
   {
-    guid: uuidv4(),
+    id: uuidv4(),
     name: 'TETS',
     owner: 'TEST',
     mediumType: MediumTypes.MAIL,

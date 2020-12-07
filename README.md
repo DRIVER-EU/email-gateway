@@ -24,7 +24,11 @@ To run the service (will also start KAFKA, Large File Service etc.)
 
 `* Run 'StartDockerContainers.bat'`
 
-`* Open webbrowser on port 4200`
+`* Open webbrowser on port 4200
+
+## E-mail account management
+
+E-mail accounts are created on the fly for all e-mail accounts used in 'simulation_entity_post' message. It is also possible to create e-mail accounts manual with the webmanagement tool. All e-mail accounts use the password 'default'.  If the 'simulation_entity_post' matches 'RESET_SCENARIO_REMOVE_ALL'
 
 ## Overview
 

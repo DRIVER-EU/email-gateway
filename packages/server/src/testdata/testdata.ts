@@ -6,7 +6,7 @@ const uuidv4 = require('uuid/v4');
 
 export const testPost: ISimulationEntityPost = {
     mediumType: MediumTypes.MAIL,
-    guid: uuidv4(),
+    id: uuidv4(),
     senderName: 'Person a <a@demo.com>',
     recipients: [ 'Person b <b@demo.com>', 'c@demo.com'],
     name: 'This is the subject of the mail',

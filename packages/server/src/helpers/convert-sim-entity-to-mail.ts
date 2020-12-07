@@ -57,12 +57,12 @@ export class ConvertSimEntityToMail {
                         const file = Path.resolve(downloadFolder, filename);
                         try {
                            const response = await downloadFile(content, file);
-                           this.logService.LogMessage(`Mail '${this.mailEntity.guid}': downloaded attachment (location: ${file}) `);
+                           this.logService.LogMessage(`Mail '${this.mailEntity.id}': downloaded attachment (location: ${file}) `);
                            // // Use this if nodemailer must download file, nodemailer will fail is attachment is not downloadable: this.attachments.push(this.ConvertFileToAttachementUrl(content));
                            const attachment = this.createFileAttachement(filename, name);
                            this.attachments.push(attachment);
                         } catch (downloadError) {
-                            this.logService.LogErrorMessage(`Mail '${this.mailEntity.guid}': failed to downloaded attachment ${content} `);
+                            this.logService.LogErrorMessage(`Mail '${this.mailEntity.id}': failed to downloaded attachment ${content} `);
                             const attachment = this.createTextAttachement(`Error_${new Date().getTime()}.txt`, `Failed to download ${content}.`);
                             this.attachments.push(attachment);
                         }
@@ -72,7 +72,7 @@ export class ConvertSimEntityToMail {
                             const filename = new Date().getTime() + '_content ';
                             const fullFileName =  Path.resolve(downloadFolder, filename);
                             await writeFileAsync(fullFileName, base64Content, 'base64');
-                            this.logService.LogMessage(`Mail '${this.mailEntity.guid}': saved attachment (location: ${fullFileName}) `);
+                            this.logService.LogMessage(`Mail '${this.mailEntity.id}': saved attachment (location: ${fullFileName}) `);
                             this.attachments.push(this.createFileAttachement(fullFileName, filename));
                             // Place in large file storage (not  needed)
                             // try {
@@ -82,7 +82,7 @@ export class ConvertSimEntityToMail {
                             // } catch(e) {
                             // }
                         } catch (error) {
-                            this.logService.LogErrorMessage(`Mail '${this.mailEntity.guid}': failed to save attachment `);
+                            this.logService.LogErrorMessage(`Mail '${this.mailEntity.id}': failed to save attachment `);
                             const attachment = this.createTextAttachement(`Error_${new Date().getTime()}.txt`, `Failed to save content`);
                         }
                     }
@@ -200,7 +200,7 @@ export class ConvertSimEntityToMail {
     // KAFKA used the epoch time is the number of milli seconds that have elapsed since January 1, 1970 (midnight UTC/GMT)
     public Timestamp(): Date {
         const testDate = new Date('2018-04-11T10:20:30Z');
-        const testEpochTime = testDate.getTime(); /* use sec instead of msec */;
+        const testEpochTime = testDate.getTime(); /* use sec instead of msec */
         let testDate1 = new Date(testEpochTime); // The 0 there is the key, which sets the date to the epoch
 
         let d = new Date(this.mailEntity.date ); /* number mseconds since 1 jan 1970 */

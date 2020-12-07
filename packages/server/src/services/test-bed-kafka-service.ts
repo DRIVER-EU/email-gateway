@@ -69,9 +69,8 @@ export class TestBedKafkaService extends EventEmitter implements ITestBedKafkaSe
       clientId: this.kafkaSettings.kafkaClientId,
       autoRegisterSchemas: true /* this.kafkaSettings.autoRegisterSchemas, */,
       schemaFolder: schemaPath,
-      /* TODO register topic other place */
-      consume: [{ topic: this.kafkaSettings.mediaTopicName  },  { topic: 'system_timing' }, { topic: 'system_topic_access_invite' }, { topic: 'system_heartbeat' }, { topic: 'system_logging' }],
-      produce: [this.kafkaSettings.mediaTopicName,  'system_timing', 'system_topic_access_invite', 'system_heartbeat', 'system_logging' ],
+      consume: [{ topic: this.kafkaSettings.mediaTopicName  } ],
+      produce: [this.kafkaSettings.mediaTopicName ],
       logging: {
         logToConsole: LogLevel.Info,
         logToKafka: LogLevel.Warn,

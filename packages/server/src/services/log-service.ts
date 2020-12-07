@@ -1,7 +1,7 @@
 import { INotificationService, NotificationService } from './notification-service';
-import { Logger } from "node-test-bed-adapter/dist/lib/logger/logger";
 
-/* 
+
+/*
 
 Basic service for logging.
 
@@ -21,8 +21,6 @@ export interface ILogService {
 }
 
 export class LogService implements ILogService {
-
-    private logKafka = Logger.instance;
     private notificationService?: NotificationService = undefined;
 
     constructor() {

@@ -105,7 +105,7 @@ export class MailServer2SimEntityPostManager  extends EventEmitter implements IM
         // this.logService.LogMessage(`Check sent mailbox of user '${mailAccount}'  (uid ${lastUid}:* )`);
         let rm = new ReadMail(this.configService.IMapSettings, mailAccount, DefaultMailPassword, lastUid);
         rm.on('NewMail', async (mail: ParsedMail) => {
-            this.logService.LogMessage(`Foward mail from user '${mail.from.text}' send at ${(<Date>mail.date).toISOString()} with id ${mail.messageId} to kafka`);
+            this.logService.LogMessage(`Foward mail from user '${(mail.from) ? mail.from.text : ''}' send at ${(<Date>mail.date).toISOString()} with id ${mail.messageId} to kafka`);
             try {
                 await this.sendMailToKafka(mail);
             } catch (e) {

@@ -87,7 +87,7 @@ export class MailService implements IMailService {
 
   private HandleSimulationEntityPostMsg(msg: ISimulationEntityPost) {
     if (!msg) return;
-    this.logService.LogMessage(`Place SimulationEntityPost ${msg.guid ||  '-'} in processing queue`);
+    this.logService.LogMessage(`Place SimulationEntityPost ${msg.id ||  '-'} in processing queue`);
     this.enqueueSimulationEntityPost(msg);
   }
 
@@ -97,7 +97,7 @@ export class MailService implements IMailService {
   }
 
   public enqueueSimulationEntityPost(msg: ISimulationEntityPost) {
-    if (msg.guid === 'RESET_SCENARIO_REMOVE_ALL') {
+    if (msg.id === 'RESET_SCENARIO_REMOVE_ALL') {
       this.logService.LogErrorMessage(`Received CLEAR mailserver command, clear mailsever`);
       this.reset();
     } else if  (msg.owner === GlobalConst.mailOwner) {

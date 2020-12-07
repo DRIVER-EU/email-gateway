@@ -28,11 +28,11 @@ export class ConvertMailToSimEntity {
         await this.uploadAttachmentsToLargeFileStorage();
         const post: ISimulationEntityPost = {
             mediumType: MediumTypes.MAIL,
-            guid: this.mail.messageId || uuid4(),
-            senderName: this.mail.from.text,
-            recipients: this.mail.to.value.map(x => x.address),
-            name: this.mail.subject,
-            body: this.mail.textAsHtml,
+            id: this.mail.messageId || uuid4(),
+            senderName: (this.mail.from) ? this.mail.from.text : '',
+            recipients: (this.mail.to) ? this.mail.to.value.map(x => x.address) as string[] : undefined,
+            name: this.mail.subject ?? '',
+            body: this.mail.textAsHtml ?? '',
             date: (this.mail.date) ? (this.mail.date.getTime()) : new Date().getTime(),
             owner: GlobalConst.mailOwner,
             mediumName: '',
