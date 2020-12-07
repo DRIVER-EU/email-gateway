@@ -9,7 +9,7 @@ import { SimulationEntityPostData } from './../../generated_rest_api/api';
 })
 export class SendSimulationEntityPostComponent implements OnInit {
 
-  private guid: string = 'GUID_' + new Date().getTime();
+  private id: string = 'GUID_' + new Date().getTime();
   private mailForm: FormGroup;
   useKafka = false;
   private post: any;
@@ -24,7 +24,7 @@ export class SendSimulationEntityPostComponent implements OnInit {
       to: 'jos@demo.com',
       subject: 'Subject here',
       content: 'Body here',
-      attachment: ''
+      attachment: undefined
     });
     this.updateJSON();
   }
@@ -35,25 +35,28 @@ export class SendSimulationEntityPostComponent implements OnInit {
   updateJSON() {
     const dt = (this.mailForm.value.timestamp) ? Date.parse(this.mailForm.value.timestamp) : new Date().getTime();
     const at = (this.mailForm.value.attachment) ? [ this.mailForm.value.attachment ] : undefined;
-    this.post /*: ISimulationEntityPost*/ = {
-      guid: this.guid,
+    this.post /*: IPost*/ = {
+      id: this.id,
       name: this.mailForm.value.subject,
       owner: '',
-      mediumType: 'MAIL',
-      mediumName: '',
-      senderName: this.mailForm.value.from,
-      recipients: this.mailForm.value.to.split(/[,;\s]+/),
-      visibleForParticipant: true,
-      date: dt,
-      location: undefined,
+      type: 'MAIL',
+      header: {
+        date: dt,
+        from: this.mailForm.value.from,
+        to: this.mailForm.value.to.split(/[,;\s]+/),
+        cc: undefined,
+        bcc: undefined,
+        location: undefined,
+        intro: undefined,
+        attachments: at
+      },
       body: this.mailForm.value.content,
-      files: at
     };
   }
 
   onSubmitMailForm(action: string) {
     this.updateJSON();
-    this.guid = 'GUID_' + new Date().getTime();
+    this.id = 'GUID_' + new Date().getTime();
     const dta: SimulationEntityPostData = {
       PostAsJson: JSON.stringify(this.post)
     };

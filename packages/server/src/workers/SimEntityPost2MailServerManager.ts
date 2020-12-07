@@ -16,7 +16,7 @@ import { IPostfixMailServerManagementService } from '../services/postfix-mailser
 
 import { ConvertSimEntityToMail } from '../helpers/convert-sim-entity-to-mail';
 
-import { ISimulationEntityPost, MediumTypes } from '../models/simulation-entity-post';
+import { IPost } from '../models/avro_generated/simulation_entity_post-value';
 import { GlobalConst } from './../global-const';
 
 // Convert mail address
@@ -25,7 +25,7 @@ import { mailAddressConverterSingleToString, mailAddressConverterToString } from
 const maxQueueSize = 200;
 
 export class SimEntityPost2MailServerManager {
-    private queue = new Queue<ISimulationEntityPost>();
+    private queue = new Queue<IPost>();
     private stop_processing = false;
 
     constructor(private logService: ILogService,
@@ -47,7 +47,7 @@ export class SimEntityPost2MailServerManager {
         this.stop_processing = true;
     }
 
-    public enqueue(post: ISimulationEntityPost) {
+    public enqueue(post: IPost) {
         if (this.queue.count < maxQueueSize) {
             this.queue.enqueue(post);
         } else this.logService.LogErrorMessage('SimulationEnityPost queue overflow, drop post.');
@@ -76,7 +76,7 @@ export class SimEntityPost2MailServerManager {
             .finally(() => this.logService.LogErrorMessage(`Stop processing queue SimulationEntityPost`));
     }
 
-    private async publishPostToMailServer(post: ISimulationEntityPost) {
+    private async publishPostToMailServer(post: IPost) {
         try {
             this.logService.LogMessage(`Start publishing post '${post.id}' to mail server.`);
             // Convert ISimulationEntityPost to NodeMailer object

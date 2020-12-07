@@ -1,23 +1,29 @@
 import { Attachment } from 'nodemailer/lib/mailer';
-import { ISimulationEntityPost, MediumTypes } from '../models/simulation-entity-post';
+import { IPost } from '../models/avro_generated/simulation_entity_post-value';
 
 const uuidv4 = require('uuid/v4');
 
 
-export const testPost: ISimulationEntityPost = {
-    mediumType: MediumTypes.MAIL,
+export const testPost: IPost = {
+    type: 'MAIL',
     id: uuidv4(),
-    senderName: 'Person a <a@demo.com>',
-    recipients: [ 'Person b <b@demo.com>', 'c@demo.com'],
+    header: {
+        date: new Date('2019-12-11T10:20:30Z').getTime(), /* EPOCH TIME (msec since 1970, 1 jan) */
+        from: 'Person a <a@demo.com>',
+        to: [ 'Person b <b@demo.com>', 'c@demo.com'],
+        cc: undefined,
+        bcc: undefined,
+        subject: 'subject',
+        intro: undefined,
+        location: undefined,
+        attachments: {
+            'http://localhost/testfile': '.txt',
+            'dit is gewoon een tekst bericht': '.txt',
+            'ZGl0IGlzIGdld29vbiBlZW4gdGVrc3QgYmVyaWNodA==' /* base64 meesage */: '.txt'
+        }
+    },
     name: 'This is the subject of the mail',
     body: '<b>Hello reader</b><br>This is the message',
-    date: new Date('2019-12-11T10:20:30Z').getTime() /* EPOCH TIME (msec since 1970, 1 jan) */,
-    owner: '',
-    mediumName: '',
-    visibleForParticipant: true,
-    files: [
-        'http://localhost/testfile',
-        'dit is gewoon een tekst bericht',
-        'ZGl0IGlzIGdld29vbiBlZW4gdGVrc3QgYmVyaWNodA==' /* base64 meesage */
-    ]
+    timestamp: new Date('2019-12-11T10:20:30Z').getTime(),
+    owner: ''
   };

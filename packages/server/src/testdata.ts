@@ -1,22 +1,28 @@
 
 
 const uuidv4 = require('uuid/v4');
-import { ISimulationEntityPost, MediumTypes } from './models/simulation-entity-post';
+import { IPost } from './models/avro_generated/simulation_entity_post-value';
 
-export const posts: ISimulationEntityPost[] = [
+export const posts: IPost[] = [
   {
     id: uuidv4(),
-    name: 'TETS',
+    name: 'TEST',
     owner: 'TEST',
-    mediumType: MediumTypes.MAIL,
-    mediumName: 'test-bed',
-    senderName: 'sender@dmmy.com',
-    recipients: ['a@b.com', 'c@d.com'],
-    visibleForParticipant: true,
-    date: Date.now(),
-    location: undefined,
-    body: `Test message`,
-    files: ['Dit is een attachment']
+    type: 'MAIL',
+    header: {
+      date: Date.now(),
+      from: 'sender@dummy.com',
+      to: ['a@b.com', 'c@d.com'],
+      cc: null,
+      bcc: null,
+      intro: undefined,
+      subject: 'testMail.Subject',
+      location: undefined,
+      attachments: undefined,
+    },
+    timestamp: Date.now(),
+    body: `Test message`
   },
 
 ];
+

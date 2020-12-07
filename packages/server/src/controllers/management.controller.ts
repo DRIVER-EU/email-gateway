@@ -5,7 +5,7 @@ import { MailData, SimulationEntityPostData, Statusresult, MailAccountsResultImp
 import { getErrorMessage } from './../helpers/exceptions';
 
 
-import { ISimulationEntityPost, MediumTypes } from './../models/simulation-entity-post';
+import { IPost } from './../models/avro_generated/simulation_entity_post-value';
 import { MailServerException } from './../nestjs_exceptions/MailServerException';
 const uuidv4 = require('uuid/v4');
 
@@ -41,7 +41,7 @@ export class ManagementController {
   testPost(@Query('useKafka') useKafka: boolean, @Body() testPost: SimulationEntityPostData): String | void {
     try {
       this.service.provider.LogService.LogMessage(`REST Controller TestSimulationEntityPost POST; use KAFKA = ${useKafka}`);
-      const mediaPost = JSON.parse(testPost.PostAsJson) as ISimulationEntityPost;
+      const mediaPost = JSON.parse(testPost.PostAsJson) as IPost;
       // TODO boolean is string ?!@
       if ((useKafka + '').toLowerCase() === 'true') {
         this.service.provider.TestBedKafkaService.sendSimulationEntityPostToKafka(mediaPost);
@@ -69,23 +69,25 @@ export class ManagementController {
   sendTestMail(@Query('useKafka') useKafka: boolean, @Query() all: any, @Body() testMail: MailData): String | void {
     let mediaPost = {
       id: uuidv4(),
-      name: testMail.Subject,
-      owner: '',
-      mediumType: MediumTypes.MAIL,
-      mediumName: '',
-      header: testMail.Subject,
-      intro: undefined,
       body: testMail.Content,
+      header: {
+        from: testMail.From,
+        to: testMail.To.split(','),
+        cc: null,
+        bcc: null,
+        intro: undefined,
+        subject: testMail.Subject,
+        location: undefined,
+        attachments: undefined
+      },
+      name: testMail.Subject,
+      type: 'MAIL',
+      owner: '',
       // /** the base64 encoded media items attached to this post */
       /** Links to files attached to this post */
-      files: undefined,
-      visibleForParticipant: true,
-      senderName: testMail.From,
-      senderRole: undefined,
-      recipients: testMail.To.split(','),
-      date: (new Date).getTime(),
-      location: undefined
-    } as ISimulationEntityPost;
+      timestamp: (new Date).getTime(),
+      tags: undefined
+    } as IPost;
     if (useKafka === true) {
       this.service.provider.TestBedKafkaService.sendSimulationEntityPostToKafka(mediaPost);
     } else {

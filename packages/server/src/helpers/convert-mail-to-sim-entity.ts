@@ -1,5 +1,5 @@
 import { simpleParser, ParsedMail } from 'mailparser';
-import { ISimulationEntityPost, MediumTypes } from './../models/simulation-entity-post';
+import { IPost } from './../models/avro_generated/simulation_entity_post-value';
 import { uuid4 } from 'node-test-bed-adapter';
 import { uploadFileToLargeFileService } from './../helpers/upload';
 
@@ -17,34 +17,38 @@ const writeFileAsync = Util.promisify(FileSystem.writeFile);
 
 export class ConvertMailToSimEntity {
 
-    private attachmentUrls: string[] | undefined = undefined;
+    private attachmentUrls:  | { [key: string]: string } | undefined = undefined;
     constructor(private logService: ILogService,
         private configService: IConfigService,
         private mail: ParsedMail) {
 
     }
 
-    public async GetSimEntityPost(): Promise<ISimulationEntityPost> {
+    public async GetSimEntityPost(): Promise<IPost> {
         await this.uploadAttachmentsToLargeFileStorage();
-        const post: ISimulationEntityPost = {
-            mediumType: MediumTypes.MAIL,
+        const post: IPost = {
+            type: 'MAIL',
             id: this.mail.messageId || uuid4(),
-            senderName: (this.mail.from) ? this.mail.from.text : '',
-            recipients: (this.mail.to) ? this.mail.to.value.map(x => x.address) as string[] : undefined,
-            name: this.mail.subject ?? '',
+            header: {
+                from: (this.mail.from) ? this.mail.from.text : '',
+                to: (this.mail.to) ? this.mail.to.value.map(x => x.address) as string[] : undefined,
+                subject: this.mail.subject ?? '',
+                intro: undefined,
+                cc: undefined,
+                bcc: undefined,
+                date: (this.mail.date) ? (this.mail.date.getTime()) : new Date().getTime(),
+                attachments: this.attachmentUrls
+            },
             body: this.mail.textAsHtml ?? '',
-            date: (this.mail.date) ? (this.mail.date.getTime()) : new Date().getTime(),
-            owner: GlobalConst.mailOwner,
-            mediumName: '',
-            visibleForParticipant: true,
-            files: this.attachmentUrls
+            timestamp: (this.mail.date) ? (this.mail.date.getTime()) : new Date().getTime(),
+            owner: GlobalConst.mailOwner
         };
         return post;
     }
 
     private async uploadAttachmentsToLargeFileStorage() {
         if (this.mail.attachments) {
-            this.attachmentUrls = [];
+            this.attachmentUrls = {};
             for (let i = 0; i < this.mail.attachments.length; i += 1) {
               const attachment = this.mail.attachments[i];
               try {
@@ -55,10 +59,10 @@ export class ConvertMailToSimEntity {
                   const response = await uploadFileToLargeFileService(this.configService.LargFileServiceUrl, downloadFile, true);
                   const responseJson = JSON.parse(response.body);
                   this.logService.LogMessage(`Mail ID '${this.mail.messageId}': attachement ${attachment.filename || '-'} stored under '${responseJson.FileURL}' (${attachment.size} bytes)`);
-                  this.attachmentUrls.push(responseJson.FileURL);
+                  this.attachmentUrls[responseJson.FileURL] = attachment.filename || '';
               } catch (e) {
                   this.logService.LogErrorMessage(`Mail ID '${this.mail.messageId}': Failed to upload attachment to large file service (url ${this.configService.LargFileServiceUrl}), error: ${e} `);
-                  this.attachmentUrls.push(`Failed to publish attachment '${attachment.filename || '-'}' to large file service `);
+                  this.attachmentUrls[`Failed to publish attachment '${attachment.filename || '-'}' to large file service `] = '.txt';
               }
               // this.logService.LogMessage(attachment.contentType);
               // this.logService.LogMessage(attachment.filename || '');

@@ -7,7 +7,7 @@ import { simpleParser, ParsedMail } from 'mailparser';
 import { MailBoxStatus } from './../helpers/mailBoxStatus';
 import { ConvertMailToSimEntity } from './../helpers/convert-mail-to-sim-entity';
 import { EventEmitter } from 'events';
-import { ISimulationEntityPost, MediumTypes } from './../models/simulation-entity-post';
+import { IPost } from './../models/avro_generated/simulation_entity_post-value';
 
 const FileSystem = require('fs');
 const Util = require('util');
@@ -20,7 +20,7 @@ const DefaultMailPassword = 'default';
 
 export interface IMailServer2SimEntityPostManager {
 
-    on(event: 'OnPost', listener: (post: ISimulationEntityPost) => void): this;
+    on(event: 'OnPost', listener: (post: IPost) => void): this;
 }
 
 export class MailServer2SimEntityPostManager  extends EventEmitter implements IMailServer2SimEntityPostManager {

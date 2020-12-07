@@ -1,0 +1,1 @@
+git clone https://github.com/DRIVER-EU/avro-schemas.git

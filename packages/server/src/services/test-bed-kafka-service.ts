@@ -1,6 +1,6 @@
 import { EventEmitter } from 'events';
 import { TestBedAdapter, Logger, LogLevel, IAdapterMessage } from 'node-test-bed-adapter';
-import { ISimulationEntityPost } from './../models/simulation-entity-post';
+import { IPost } from './../models/avro_generated/simulation_entity_post-value';
 import { ProduceRequest } from 'kafka-node';
 
 // Services:
@@ -24,11 +24,11 @@ export interface ITestBedAdapterSettings {
 
 export interface ITestBedKafkaService {
   // Fires when SimulationEntityPost is received
-  on(event: 'SimulationEntityPostMsg', listener: (media: ISimulationEntityPost) => void): this;
+  on(event: 'SimulationEntityPostMsg', listener: (media: IPost) => void): this;
   on(event: 'ready', listener: () => void): this;
   connectToKafka(): void;
   Settings: ITestBedAdapterSettings;
-  sendSimulationEntityPostToKafka(posts: ISimulationEntityPost | ISimulationEntityPost[]): void;
+  sendSimulationEntityPostToKafka(posts: IPost | IPost[]): void;
   isConnectedToKafka(): boolean;
   numberOfReceivedSimEnityPost: number;
   numberOfSendSimEnityPost: number;
@@ -104,12 +104,12 @@ export class TestBedKafkaService extends EventEmitter implements ITestBedKafkaSe
   private HandleReceiveKafkaMessage(message: IAdapterMessage) {
     if (message.topic.startsWith('system_')) return;
     const stringify = (m: string | Object) => typeof m === 'string' ? m : JSON.stringify(m, null, 2);
-    // this.logService.LogMessage(`Received KAFKA message ${stringify(message.key)}: ${stringify(message.value)}`);
+    this.logService.LogMessage(`Received KAFKA message ${stringify(message.key)}: ${stringify(message.value)}`);
     // Check topic name:
     switch (message.topic.toLowerCase()) {
       case this.Settings.mediaTopicName.toLowerCase():
         this.receivedSimEnityPost++;
-        this.emit('SimulationEntityPostMsg', message.value as ISimulationEntityPost);
+        this.emit('SimulationEntityPostMsg', message.value as IPost);
         break;
       default:
         this.logService.LogMessage(`Received KAFKA topic ${message.topic}, ignore.`);
@@ -117,12 +117,12 @@ export class TestBedKafkaService extends EventEmitter implements ITestBedKafkaSe
     }
   }
 
-  public sendSimulationEntityPostToKafka(posts: ISimulationEntityPost | ISimulationEntityPost[]) {
+  public sendSimulationEntityPostToKafka(posts: IPost | IPost[]) {
     if (this.Settings.connectToKafka) {
       if (!(posts instanceof Array)) {
         posts = [posts];
       }
-      posts.map((post: ISimulationEntityPost) => {
+      posts.map((post: IPost) => {
         this.sendSimEnityPost++;
         const payload = {
           topic: this.Settings.mediaTopicName,

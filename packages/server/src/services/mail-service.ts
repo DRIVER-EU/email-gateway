@@ -10,7 +10,8 @@ import { IConfigService } from './config-service';
 import { ILogService } from './log-service';
 import { ITestBedKafkaService } from './test-bed-kafka-service';
 import { IPostfixMailServerManagementService } from './postfix-mailserver-management';
-import { ISimulationEntityPost, MediumTypes } from './../models/simulation-entity-post';
+import { IPost } from './../models/avro_generated/simulation_entity_post-value';
+
 
 import { EventEmitter } from 'events';
 
@@ -43,7 +44,7 @@ export interface IMapSettings {
 
 
 export interface IMailService {
-  enqueueSimulationEntityPost(msg: ISimulationEntityPost): void;
+  enqueueSimulationEntityPost(msg: IPost): void;
   reset(): void;
 }
 
@@ -85,24 +86,24 @@ export class MailService implements IMailService {
 
   }
 
-  private HandleSimulationEntityPostMsg(msg: ISimulationEntityPost) {
+  private HandleSimulationEntityPostMsg(msg: IPost) {
     if (!msg) return;
     this.logService.LogMessage(`Place SimulationEntityPost ${msg.id ||  '-'} in processing queue`);
     this.enqueueSimulationEntityPost(msg);
   }
 
   // Received converted mail to ISimulationEntityPost
-  private handleConvertedMailToSimulationEntityPost(post: ISimulationEntityPost) {
+  private handleConvertedMailToSimulationEntityPost(post: IPost) {
     this.kafkaService.sendSimulationEntityPostToKafka(post);
   }
 
-  public enqueueSimulationEntityPost(msg: ISimulationEntityPost) {
+  public enqueueSimulationEntityPost(msg: IPost) {
     if (msg.id === 'RESET_SCENARIO_REMOVE_ALL') {
       this.logService.LogErrorMessage(`Received CLEAR mailserver command, clear mailsever`);
       this.reset();
     } else if  (msg.owner === GlobalConst.mailOwner) {
         /* prevent handling messages injecten by this service */
-    } else if (msg.mediumType === MediumTypes.MAIL) {
+    } else if (msg.type === 'MAIL') {
         this.exportToMailManager.enqueue(msg); // queue for processing
         this.logService.LogMessage(`Received KAFKA 'SimulationEntityPost' message, start processing: ${JSON.stringify(msg, null, 3)}`);
     } else {

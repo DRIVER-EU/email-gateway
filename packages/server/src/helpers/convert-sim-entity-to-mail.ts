@@ -1,6 +1,6 @@
 // Convert ISimulationEntityPost to MailEnvelop (used by NodeMailer)
 
-import { ISimulationEntityPost, MediumTypes } from './../models/simulation-entity-post';
+import { IPost } from './../models/avro_generated/simulation_entity_post-value';
 import { SendMailOptions as MailEnvelop } from 'nodemailer';
 import { Address, Attachment } from 'nodemailer/lib/mailer';
 
@@ -9,6 +9,7 @@ import { mailAddressConverter, mailAddressConverterSingle } from './../helpers/m
 
 import Url = require('url');
 import { uuid4 } from 'node-test-bed-adapter';
+
 
 // Services:
 import { IConfigService } from '../services/config-service';
@@ -29,16 +30,18 @@ export class ConvertSimEntityToMail {
     private attachments: Attachment[] = new Array();
 
     constructor(private logService: ILogService,
-        private configService: IConfigService, private mailEntity: ISimulationEntityPost) {
+        private configService: IConfigService, private mailEntity: IPost) {
 
     }
 
     private validateThrowIfInvalid() {
-        if (this.mailEntity.mediumType !== MediumTypes.MAIL)
+        if (this.mailEntity.type !== 'MAIL' )
             throw new Error('No mail type set in ISimulationEntityPost');
-        if (!this.mailEntity.senderName || this.mailEntity.senderName.length === 0)
+        if (!this.mailEntity.header)
+            throw new Error('No header set in ISimulationEntityPost');
+        if (!this.mailEntity.header.from || this.mailEntity.header.from.length === 0)
             throw new Error('No from-field set in ISimulationEntityPost');
-        if (!this.mailEntity.recipients || this.mailEntity.recipients.length === 0)
+        if (!this.mailEntity.header.to || this.mailEntity.header.to.length === 0)
             throw new Error('No to-field set in ISimulationEntityPost');
         // if ((this.mailEntity.files) && this.mailEntity.files.some(x => !validUrl.isUri(x)))
         //    throw new Error('Not all files are valid URLs in ISimulationEntityPost');
@@ -46,11 +49,11 @@ export class ConvertSimEntityToMail {
 
     // The nodemailer also download the file, used to check if attachment is aval (or else nodemailer throws error)
     public async downloadAttachments() {
-        if ((this.mailEntity.files)) {
+        if ((this.mailEntity.header?.attachments)) {
             const downloadFolder = this.getDownloadFolder();
-            for (let attachment in this.mailEntity.files) {
+            for (let attachment in this.mailEntity.header.attachments) {
                 try {
-                    let content = this.mailEntity.files[attachment];
+                    let content = this.mailEntity.header.attachments[attachment];
                     if (validUrl.isUri(content)) {
                         const name = this.urlToFilename(content);
                         const filename = new Date().getTime() + '_' + name;
@@ -182,11 +185,11 @@ export class ConvertSimEntityToMail {
 
 
     public FromMailAccount() {
-        return mailAddressConverter(this.mailEntity.senderName);
+        return mailAddressConverter(this.mailEntity.header?.from || '');
     }
 
     public ToMailAccounts(): Address[] {
-        return (this.mailEntity.recipients) ? mailAddressConverter(this.mailEntity.recipients) : [];
+        return (this.mailEntity.header?.to) ? mailAddressConverter(this.mailEntity.header.to || '') : [];
     }
 
     public Subject() {
@@ -203,7 +206,7 @@ export class ConvertSimEntityToMail {
         const testEpochTime = testDate.getTime(); /* use sec instead of msec */
         let testDate1 = new Date(testEpochTime); // The 0 there is the key, which sets the date to the epoch
 
-        let d = new Date(this.mailEntity.date ); /* number mseconds since 1 jan 1970 */
+        let d = new Date(this.mailEntity.header?.date || 0 ); /* number mseconds since 1 jan 1970 */
         return d;
     }
 
