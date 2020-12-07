@@ -34,10 +34,10 @@ export class SendSimulationEntityPostComponent implements OnInit {
 
   updateJSON() {
     const dt = (this.mailForm.value.timestamp) ? Date.parse(this.mailForm.value.timestamp) : new Date().getTime();
-    const at = (this.mailForm.value.attachment) ? [ this.mailForm.value.attachment ] : undefined;
+    const at = (this.mailForm.value.attachment) ?  { [this.mailForm.value.attachment as string]: '' } : undefined;
     this.post /*: IPost*/ = {
       id: this.id,
-      name: this.mailForm.value.subject,
+      name: this.id,
       owner: '',
       type: 'MAIL',
       header: {
@@ -48,9 +48,11 @@ export class SendSimulationEntityPostComponent implements OnInit {
         bcc: undefined,
         location: undefined,
         intro: undefined,
-        attachments: at
+        attachments: at,
+        subject: this.mailForm.value.subject,
       },
       body: this.mailForm.value.content,
+      timestamp: dt
     };
   }
 

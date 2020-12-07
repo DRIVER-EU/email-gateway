@@ -72,7 +72,7 @@ export class ConvertSimEntityToMail {
                     } else {
                         try {
                             const base64Content = this.isBase64(content) ? content : btoa(content);
-                            const filename = new Date().getTime() + '_content ';
+                            const filename = new Date().getTime() + '_content.txt';
                             const fullFileName =  Path.resolve(downloadFolder, filename);
                             await writeFileAsync(fullFileName, base64Content, 'base64');
                             this.logService.LogMessage(`Mail '${this.mailEntity.id}': saved attachment (location: ${fullFileName}) `);
@@ -193,7 +193,7 @@ export class ConvertSimEntityToMail {
     }
 
     public Subject() {
-        return this.mailEntity.name;
+        return this.mailEntity.header?.subject || '';
     }
 
     public Body() {

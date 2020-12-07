@@ -27,6 +27,8 @@ export interface IConfigService {
     WebsockNotificationPort: number;
     LargFileServiceUrl: string;
     ApiMailServerUrl: string;
+    MailCheckIntervalInSeconds: number;
+    DefaultMailPassword: string;
 }
 
 export class ConfigService extends EventEmitter implements IConfigService {
@@ -84,6 +86,14 @@ export class ConfigService extends EventEmitter implements IConfigService {
 
 
     }
+
+    get MailCheckIntervalInSeconds(): number {
+        return nconf.get('MailCheckIntervalInSeconds') || 60;
+    }
+
+    get DefaultMailPassword(): string {
+      return nconf.get('DefaultMailPassword') || 'default';
+  }
 
     get NestServerPortNumber(): number {
         return nconf.get('server:port') || 7891;

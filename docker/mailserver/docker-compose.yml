@@ -1,4 +1,4 @@
-version: '2'
+version: '3'
 services:
   webmail:
     image: driver-roundcube
@@ -293,6 +293,77 @@ services:
     environment:
       HOST: localhost
       PORT: 9090
+      
+  postgres:
+    image: postgres:9.6
+    hostname: postgres
+    ports:
+      - "5432:5342"
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: TRIAL_ADMIN
+    volumes:
+       - postgres-data:/var/lib/postgresql/data
+    restart: unless-stopped
+ 
+ 
+  afteractionreview:
+    image: drivereu/after-action-review:latest
+    links:
+      - postgres
+      - broker
+      - schema_registry
+    ports:
+      - "8095:8095"
+    environment:
+      KAFKA_BROKER_URL: broker:9092
+      SCHEMA_REGISTRY_URL: http://schema_registry:3502
+  
+  pgadmin:
+    image: dpage/pgadmin4
+    links:
+      - postgres
+    restart: unless-stopped
+    environment:
+      PGADMIN_LISTEN_PORT: 5050
+      PGADMIN_DEFAULT_EMAIL: "pgadmin@driver.eu"
+      PGADMIN_DEFAULT_PASSWORD: "admin"
+    ports:
+      - "5050:5050"
+  
+  time_service:
+    image: drivereu/test-bed-time-service:latest
+    links:
+      - broker
+      - schema_registry
+    ports:
+      - "8100:8100"
+    environment:
+      KAFKA_BROKER_URL: broker:9092
+      SCHEMA_REGISTRY_URL: http://schema_registry:3502
+      AUTO_REGISTER_SCHEMAS: 'true'
+
+  trial_management_tool:
+    image: drivereu/trial-management-tool:latest
+    links:
+      - broker
+      - schema_registry
+    ports:
+      - '3210:3210'
+    environment:
+      CLIENT_ID: TB-TrialMgmt
+      KAFKA_HOST: broker:9092
+      SCHEMA_REGISTRY: http://schema_registry:3502
+      TRIAL_MANAGER_SERVER_PORT: 3210
+      PRODUCE: system_request_change_of_trial_stage,system_tm_phase_message,system_tm_role_player,system_tm_session_mgmt,large_data_update
+      SSL: 'false'
+      SSL_PFX: certs/TB-TrialMgmt.p12
+      SSL_PASSPHRASE: changeit
+      SSL_CA: certs/test-ca.pem
+    volumes:
+      - trial-data:/app/trials
+
 volumes:
   maildata:
     driver: local
@@ -300,6 +371,8 @@ volumes:
     driver: local
   mailconfig:
     driver: local
+  postgres-data:
+  trial-data:
 networks:
   static-network:
     driver: bridge

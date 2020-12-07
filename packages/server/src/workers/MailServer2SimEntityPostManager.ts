@@ -15,8 +15,6 @@ const Path = require('path');
 
 const writeFileAsync = Util.promisify(FileSystem.writeFile);
 
-const MailCheckIntervalInSeconds = 60;
-const DefaultMailPassword = 'default';
 
 export interface IMailServer2SimEntityPostManager {
 
@@ -25,6 +23,8 @@ export interface IMailServer2SimEntityPostManager {
 
 export class MailServer2SimEntityPostManager  extends EventEmitter implements IMailServer2SimEntityPostManager {
     private stop_processing = false;
+    private MailCheckIntervalInSeconds: number  = 60;
+    private DefaultMailPassword = 'default';
     private status: MailBoxStatus;
 
     constructor(private logService: ILogService,
@@ -32,6 +32,8 @@ export class MailServer2SimEntityPostManager  extends EventEmitter implements IM
         private postfixService: IPostfixMailServerManagementService) {
             super();
         this.status = new MailBoxStatus(logService);
+        this.MailCheckIntervalInSeconds = configService.MailCheckIntervalInSeconds;
+        this.DefaultMailPassword = configService.DefaultMailPassword;
     }
 
 
@@ -51,7 +53,7 @@ export class MailServer2SimEntityPostManager  extends EventEmitter implements IM
     private checkMailBoxes() {
         const checkMailBoxesInBackground = async() => {
           while (!this.stop_processing) {
-            const nextTime = new Date().getTime() + (MailCheckIntervalInSeconds * 1000);
+            const nextTime = new Date().getTime() + (this.MailCheckIntervalInSeconds * 1000);
             const startTime = new Date().getTime();
             try {
                 await this.CheckAllMailBoxes();
@@ -103,7 +105,7 @@ export class MailServer2SimEntityPostManager  extends EventEmitter implements IM
         if (!mailAccount) return;
         const lastUid = this.status.getUid(mailAccount);
         // this.logService.LogMessage(`Check sent mailbox of user '${mailAccount}'  (uid ${lastUid}:* )`);
-        let rm = new ReadMail(this.configService.IMapSettings, mailAccount, DefaultMailPassword, lastUid);
+        let rm = new ReadMail(this.configService.IMapSettings, mailAccount, this.DefaultMailPassword, lastUid);
         rm.on('NewMail', async (mail: ParsedMail) => {
             this.logService.LogMessage(`Foward mail from user '${(mail.from) ? mail.from.text : ''}' send at ${(<Date>mail.date).toISOString()} with id ${mail.messageId} to kafka`);
             try {
