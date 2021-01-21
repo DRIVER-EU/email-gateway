@@ -35,7 +35,7 @@ export class ConvertSimEntityToMail {
     }
 
     private validateThrowIfInvalid() {
-        if (this.mailEntity.type !== 'MAIL' )
+        if (this.mailEntity.type?.toLocaleLowerCase() !== 'mail' )
             throw new Error('No mail type set in ISimulationEntityPost');
         if (!this.mailEntity.header)
             throw new Error('No header set in ISimulationEntityPost');

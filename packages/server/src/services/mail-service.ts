@@ -103,7 +103,7 @@ export class MailService implements IMailService {
       this.reset();
     } else if  (msg.owner === GlobalConst.mailOwner) {
         /* prevent handling messages injecten by this service */
-    } else if (msg.type === 'MAIL') {
+    } else if (msg.type?.toLocaleLowerCase() === 'mail') {
         this.exportToMailManager.enqueue(msg); // queue for processing
         this.logService.LogMessage(`Received KAFKA 'SimulationEntityPost' message, start processing: ${JSON.stringify(msg, null, 3)}`);
     } else {

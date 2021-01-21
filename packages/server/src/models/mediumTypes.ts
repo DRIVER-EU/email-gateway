@@ -1,0 +1,11 @@
+
+export const enum MediumTypes {
+    CHAT = 'CHAT',
+    INCIDENT_REPORT = 'INCIDENT_REPORT',
+    MAIL = 'MAIL',
+    MICROBLOG = 'MICROBLOG',
+    NEWS = 'NEWS',
+    SITUATION_REPORT = 'SITUATION_REPORT',
+    SOCIAL_NETWORK = 'SOCIAL_NETWORK',
+    VIDEO = 'VIDEO'
+  }
