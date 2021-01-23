@@ -24,7 +24,7 @@ The AVRO scheme can be found at 'https://github.com/DRIVER-EU/avro-schemas' in f
 |                      | Header: x-gateway-key          | Set to value 'KAFKA' when KAFKA message is converted to e-mail. |
 |                      | Header: X-Place-In-Sent-Folder | Set to value 'YES' by e-mail gateway service; used by sieve to place message in sent folder (from address). |
 
-![Kafa example message](/Images/KafkaSimulationEntityPostExample.png)
+![Kafa example message](Images/KafkaSimulationEntityPostExample.png)
 
 ## Epoch time
 
