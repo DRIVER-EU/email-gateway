@@ -8,7 +8,9 @@
     "test": "ng test",
     "lint": "ng lint",
     "generate-rest-client": "cd swagger_codegenerator && GenerateCodeWithDocker.bat",
-    "build_dockerimage": "docker build -t drivereu-mailmonitor ."
+    "docker:build": "docker build -t driver-mailmonitor .",
+    "docker:tag": "docker tag driver-mailmonitor drivereu/driver-mailmonitor",
+    "docker:publish": "npm run docker:build && npm run docker:tag && docker push drivereu/driver-mailmonitor"
   },
   "private": true,
   "dependencies": {

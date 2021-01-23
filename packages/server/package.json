@@ -16,7 +16,9 @@
     "//": {
       "comment": "build_dockerimage: Only for debug, use docker/mailserver/BuildAllDockerImages.bat to build docker images"
     },
-    "build_dockerimage": "docker build -t drivereu-mailgateway ."
+    "docker:build": "docker build -t driver-mailgateway .",
+    "docker:tag": "docker tag driver-mailgateway drivereu/driver-mailgateway",
+    "docker:publish": "npm run docker:build && npm run docker:tag && docker push drivereu/driver-mailgateway"
   },
   "author": "TNO",
   "license": "MIT",
