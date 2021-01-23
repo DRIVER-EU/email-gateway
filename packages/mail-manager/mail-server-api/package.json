@@ -15,7 +15,9 @@
     "prestart:prod": "rimraf dist && npm run build",
     "start:prod": "node dist/main.js",
     "lint": "tslint -p tsconfig.json -c tslint.json",
-    "build_docker": "docker build -t drivereu-mailserver ."
+	"docker:build": "docker build -t driver-mailserver .",
+    "docker:tag": "docker tag driver-mailserver drivereu/driver-mailserver",
+    "docker:publish": "npm run docker:build && npm run docker:tag && docker push drivereu/driver-mailserver"
   },
   "dependencies": {
     "@nestjs/common": "^6.0.0",

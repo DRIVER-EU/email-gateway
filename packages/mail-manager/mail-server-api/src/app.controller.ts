@@ -2,7 +2,7 @@
 import { AppService } from './app.service';
 import { Controller, Get, Inject, Param, Req, Put, Post, Body, Query } from '@nestjs/common';
 import { ApiResponse, ApiOperation, ApiImplicitParam, ApiUseTags, ApiImplicitBody, ApiImplicitQuery } from '@nestjs/swagger';
-import { MailAccountsResult, AddMailAccountResult, DeleteMailAccountResult, ResetResult } from './models/restmodels';
+import { MailAccountsResult, AddMailAccountResult, DeleteMailAccountResult, ResetResult, ChangePasswordMailAccountResult } from './models/restmodels';
 
 @ApiUseTags('MailManagement')
 @Controller('MailManagement')
@@ -24,6 +24,35 @@ export class AppController {
     if (this.appService === null) { throw new Error('Not initialized (yet)'); }
     return await this.appService.GetMailAccounts();
   }
+    /*******************************************************************************************/
+  @ApiOperation({
+    title: 'Change password',
+    description: 'Change password of mail account ',
+    operationId: 'ChangePassword',
+  })
+  @ApiImplicitQuery({
+    name: 'account',
+    description: 'The mail account',
+    required: true,
+    type: String,
+  })
+  @ApiImplicitQuery({
+    name: 'password',
+    description: 'The new mail account password',
+    required: true,
+    type: String,
+  })
+  @ApiResponse({
+    status: 200,
+    description: '',
+    type: ChangePasswordMailAccountResult,
+  })
+  @Post('ChangePasswordMailAccount')
+  async ChangePasswordMailAccount(@Query('account') account: string, @Query('password') password: string): Promise<ChangePasswordMailAccountResult> {
+    if (this.appService === null) { throw new Error('Not initialized (yet)'); }
+    return await this.appService.ChangePasswordMailAccount(account, password);
+  }
+  
   /*******************************************************************************************/
   @ApiOperation({
     title: 'Add mail account',

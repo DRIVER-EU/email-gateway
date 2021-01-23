@@ -83,10 +83,10 @@ export class SimEntityPost2MailServerManager {
             let convertToMail = new ConvertSimEntityToMail(this.logService, this.configService, post);
             const mailMessage: MailEnvelop = await convertToMail.GetMailMessage();
             const dt = (Object.prototype.toString.call(mailMessage.date) === '[object Date]') ? ((mailMessage.date as Date).toISOString()) :  mailMessage.date;
-            this.logService.LogMessage(`Converted post ${post.id} to mail ==> From: '${mailAddressConverterSingleToString(mailMessage.from)}' To: '${mailAddressConverterToString(mailMessage.to)}' Date: '${dt}' Subject: '${mailMessage.subject}'`);
-             // Create mail account in from and to on mail-server if don't exsist.
-             await this.postfixService.addEMailAddressesAdv(convertToMail.FromMailAccount());
-             await this.postfixService.addEMailAddressesAdv(convertToMail.ToMailAccounts());
+            this.logService.LogMessage(`Converted post ${post.id} to mail ==> From: '${mailAddressConverterSingleToString(mailMessage.from)}' To: '${mailAddressConverterToString(mailMessage.to)}' cc: '${mailAddressConverterToString(mailMessage.cc)}' bcc: '${mailAddressConverterToString(mailMessage.bcc)}' Date: '${dt}' Subject: '${mailMessage.subject}'`);
+             // Create mail accounts on mail-server if don't exsist.
+             const mailaccounts = [...convertToMail.FromMailAccount(), ...convertToMail.ToMailAccounts(), ...convertToMail.CcMailAccounts(), ...convertToMail.BccMailAccounts()];
+             await this.postfixService.addEMailAddressesAdv(mailaccounts);
              await  this.sleep(2500); // Give server time to create account
              const from = convertToMail.FromMailAccount()[0];
              let smtpClient = nodemailer.createTransport(this.connectConfiguration(from.address, GlobalConst.defaultMailPassword));

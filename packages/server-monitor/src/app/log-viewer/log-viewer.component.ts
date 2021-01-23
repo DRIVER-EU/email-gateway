@@ -17,7 +17,7 @@ export class LogViewerComponent implements OnInit {
 
   ngOnInit() {
      this.notificationService.onLogMessage().subscribe((message: string) => {
-       debugger;
+
       //this.messages.unshift(message);
       this.messages.push(message);
      });

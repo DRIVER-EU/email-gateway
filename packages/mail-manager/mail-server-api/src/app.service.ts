@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { MailAccountsResult, AddMailAccountResult, DeleteMailAccountResult, ResetResult } from './models/restmodels';
+import { MailAccountsResult, AddMailAccountResult, DeleteMailAccountResult, ResetResult, ChangePasswordMailAccountResult } from './models/restmodels';
 
 import fs = require('fs');
 import log4js = require('log4js');
@@ -14,11 +14,23 @@ export class AppService {
   //    return fs.readFileSync('src/index.html', 'utf8');
   // }
 
+  async ChangePasswordMailAccount(accountName: string, password: string): Promise<ChangePasswordMailAccountResult> {
+    // tslint:disable-next-line: no-console
+    logger.info(`REST command: Change password mail account '${accountName}'. `);
+    if (this.isRunningInDocker()) {
+      this.execShellCommand(`updatemailuser ${accountName} ${password}`)
+      .then(x => {} );
+    }
+    const result = new ChangePasswordMailAccountResult();
+    result.Msg = `Change password mail account '${accountName}'. `;
+    return result;
+  }
+  
   async AddMailAccount(accountName: string, password: string): Promise<AddMailAccountResult> {
     // tslint:disable-next-line: no-console
     logger.info(`REST command: Add mail account '${accountName}'. `);
     if (this.isRunningInDocker()) {
-      this.execShellCommand(`addmailuser ${accountName} ${password}`)
+      this.execShellCommand(`addmailuserandsieve ${accountName} ${password}`)
       .then(x => {} );
     }
     const result = new AddMailAccountResult();

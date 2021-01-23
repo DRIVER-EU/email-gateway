@@ -4,10 +4,10 @@
         "port": 7891
     },
     "kafka": {
-        "kafkaHost": "localhost_ac:3501",
+        "kafkaHost": "localhost:3501",
         "schemaRegistryUrl": "localhost:3502",
         "autoRegisterSchemas": "false",
          "mediaTopicName": "simulation_entity_post",
-         "connectToKafka": "false"
+         "connectToKafka": "true"
     }
 }

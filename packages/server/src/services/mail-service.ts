@@ -46,6 +46,7 @@ export interface IMapSettings {
 export interface IMailService {
   enqueueSimulationEntityPost(msg: IPost): void;
   reset(): void;
+  start(): void;
 }
 
 import axios = require('axios');
@@ -77,13 +78,18 @@ export class MailService implements IMailService {
     this.exportToKafkaManager = new MailServer2SimEntityPostManager(this.logService, this.configService, this.postfixService);
     this.kafkaService.on('SimulationEntityPostMsg', msg => this.HandleSimulationEntityPostMsg(msg));
     this.exportToKafkaManager.on('OnPost', post => this.handleConvertedMailToSimulationEntityPost(post));
-    this.exportToMailManager.start(); // Background task to copy SimEntityPost to the mail server
-    this.exportToKafkaManager.start(); // Background task to copy e-mails to SimEntityPost
+
 
 
 
      // this.exportToMailManager.enqueue(testPost);
 
+  }
+
+  public start() {
+    this.logService.LogMessage(`Starting export to mailserver and kafka`);
+    this.exportToMailManager.start(); // Background task to copy SimEntityPost to the mail server
+    this.exportToKafkaManager.start(); // Background task to copy e-mails to SimEntityPost
   }
 
   private HandleSimulationEntityPostMsg(msg: IPost) {

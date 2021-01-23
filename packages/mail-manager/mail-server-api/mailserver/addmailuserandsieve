@@ -1,0 +1,54 @@
+#! /bin/bash
+
+# shellcheck disable=SC2094
+
+# shellcheck source=../scripts/helper-functions.sh
+. /usr/local/bin/helper-functions.sh
+
+DATABASE=${DATABASE:-/tmp/docker-mailserver/postfix-accounts.cf}
+
+USER="${1}"
+shift
+PASSWD="${*}"
+
+function usage  { echo "Usage: addmailuser <user@domain> [<password>]" ; }
+
+[[ -z ${USER} ]] && { usage ; errex "no username specified" ; }
+[[ "${USER}" =~ .*\@.* ]] || { usage ; errex "username must include the domain" ; }
+
+# Protect config file with lock to avoid race conditions
+touch "${DATABASE}"
+(
+  flock -e 200
+
+  grep -qi "^$(escape "${USER}")|" "${DATABASE}" 2>/dev/null &&
+    errex "User \"${USER}\" already exists"
+
+  if [[ -z ${PASSWD} ]]
+  then
+    read -r -s -p "Enter Password: " PASSWD
+    echo
+    [[ -z ${PASSWD} ]] && errex "Password must not be empty"
+  fi
+
+  HASH="$(doveadm pw -s SHA512-CRYPT -u "${USER}" -p "${PASSWD}")"
+  echo "${USER}|${HASH}" >> "${DATABASE}"
+) 200< "${DATABASE}"
+
+
+echo "Add sieve rule to place mail in sent folder"
+mailaddress="$USER"
+domain=${mailaddress##*@}
+account=${mailaddress%@*}
+mailfolder="/var/mail/$domain/$account/"
+sievefile="$mailfolder.dovecot.sieve"
+echo "account=$account"
+echo "domain=$domain"
+echo "Wait for directory to be created: $mailfolder"
+until [ -d $mailfolder ]; do sleep 0.1; done
+echo "Add sieve rull $sievefile"
+cp /home/node/app/mailserver/dovecot/template.dovecot.sieve $sievefile
+chown docker:docker $sievefile
+echo "Customize rule"
+sed -i "s/templatemailaddress/${mailaddress}/g" "$sievefile"
+

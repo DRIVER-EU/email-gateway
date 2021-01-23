@@ -4,6 +4,7 @@
 # Based on debian:stretch-slim
 # FROM debian:stretch-slim
 FROM tvial/docker-mailserver:latest
+# FROM docker.io/mailserver/docker-mailserver:latest
 
 MAINTAINER DRIVER-EU
 
@@ -37,9 +38,16 @@ COPY  . .
 
 COPY mail-manager-app.conf /etc/supervisor/conf.d/
 
+# Global rule for all mails
+# COPY mailserver/dovecot/sieve/10-sent.sieve /usr/lib/dovecot/sieve-global/before/
 
+COPY mailserver/addmailuserandsieve /usr/local/bin/addmailuserandsieve
+
+RUN dos2unix /usr/local/bin/addmailuserandsieve
 RUN dos2unix /etc/supervisor/conf.d/mail-manager-app.conf
+# RUN dos2unix /usr/lib/dovecot/sieve-global/before/10-sent.sieve
 RUN dos2unix /home/node/app/*.sh
+RUN chmod +x /usr/local/bin/addmailuserandsieve
 
 RUN npm run build
 

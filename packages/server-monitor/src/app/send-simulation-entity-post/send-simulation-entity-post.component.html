@@ -8,9 +8,14 @@
       <input  matInput placeholder="From"  id="from" type="text" formControlName="from" class="textbox-style">
     </mat-form-field>
     <mat-form-field class="textbox-style">
-      <input matInput placeholder="To"  id="to" type="text" formControlName="to"  class="textbox-style">
+      <input matInput placeholder="TO (use ; for multiple mailaddresses)"  id="to" type="text" formControlName="to"  class="textbox-style">
     </mat-form-field>
-
+    <mat-form-field class="textbox-style">
+      <input matInput placeholder="CC (use ; for multiple mailaddresses)"  id="cc" type="text" formControlName="cc"  class="textbox-style">
+    </mat-form-field>
+    <mat-form-field class="textbox-style">
+      <input matInput placeholder="BCC (use ; for multiple mailaddresses)"  id="bcc" type="text" formControlName="bcc"  class="textbox-style">
+    </mat-form-field>
     <mat-form-field class="textbox-style">
       <input matInput placeholder="Subject" id="subject" type="text" formControlName="subject"  class="textbox-style">
     </mat-form-field>
@@ -18,12 +23,16 @@
         <textarea matInput placeholder="Message" id="content" type="text" formControlName="content" ></textarea>
     </mat-form-field>
     <mat-form-field class="textbox-style">
-            <input matInput placeholder="Attachment (url)" id="attachment" type="text" formControlName="attachment"  class="textbox-style">
+            <input matInput placeholder="Attachment url or base64 (in this form limited to 1)" id="attachmenturl" type="text" formControlName="attachmenturl"  class="textbox-style">
     </mat-form-field>
-   
-    <button name="submit" class="button" type="submit">Submit</button>
+    <mat-form-field class="textbox-style">
+      <input matInput placeholder="Attachment 1 name" id="attachmentname" type="text" formControlName="attachmentname"  class="textbox-style">
+    </mat-form-field>
+    <button name="submit" class="button" type="submit">Send e-mail</button>
   </form>
+  <button (click)="createAttachmentUrl()">Create attachment url</button>
 <br>
+<mat-checkbox [(ngModel)]="useEmbeddedAttachment" (ngModelChange)="useEmbeddedAttachmentChanged($event)">Include BLOB atachment (TNO logo)</mat-checkbox><br>
 <mat-checkbox [(ngModel)]="useKafka">Place message on KAFKA bus</mat-checkbox><br>
  <button class="btn-alignment" name="updateJSONbutton"  (click)="updateJSON($event)"><i class="material-icons">refresh</i> Update JSON</button>
 <pre>{{post | json}}</pre>

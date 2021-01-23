@@ -6,6 +6,12 @@ export class MailAccountsResult {
 }
 
 // tslint:disable-next-line: max-classes-per-file
+export class ChangePasswordMailAccountResult {
+    @ApiModelProperty({ required: true, type: String })
+    public Msg: string;
+}
+
+// tslint:disable-next-line: max-classes-per-file
 export class AddMailAccountResult {
     @ApiModelProperty({ required: true, type: String })
     public Msg: string;

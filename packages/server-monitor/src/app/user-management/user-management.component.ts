@@ -49,7 +49,7 @@ export class UserManagementComponent implements OnInit {
       this.isInErrorState = true;
       this.mailAccounts = [];
       this.errorMessage = getErrorMessage(e);
-      debugger;
+
     }
     this.isLoading = false;
   }

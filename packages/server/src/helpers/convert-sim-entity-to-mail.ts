@@ -47,22 +47,37 @@ export class ConvertSimEntityToMail {
         //    throw new Error('Not all files are valid URLs in ISimulationEntityPost');
     }
 
+    private isEmpty(text: string): boolean {
+        return (!text || text.length === 0);
+    }
+
     // The nodemailer also download the file, used to check if attachment is aval (or else nodemailer throws error)
     public async downloadAttachments() {
         if ((this.mailEntity.header?.attachments)) {
             const downloadFolder = this.getDownloadFolder();
-            for (let attachment in this.mailEntity.header.attachments) {
+            let filenames = new Array();
+            /* Not async possible Object.entries(this.mailEntity.header.attachments).forEach(
+                ([key, value]) => {
+                    filenames.push(value);
+                    console.log(key, value);
+                } ); */
+            let index = 0;
+            for (let attachmentKey in this.mailEntity.header.attachments) {
                 try {
-                    let content = this.mailEntity.header.attachments[attachment];
-                    if (validUrl.isUri(content)) {
-                        const name = this.urlToFilename(content);
-                        const filename = new Date().getTime() + '_' + name;
-                        const file = Path.resolve(downloadFolder, filename);
+                    let filename = attachmentKey ?? '';
+                    let content = this.mailEntity.header.attachments[attachmentKey] ?? '';
+
+                    if (validUrl.isWebUri(content)) {
+                        if (this.isEmpty(filename)) {
+                            const name = this.urlToFilename(content);
+                            filename = new Date().getTime() + '_' + name;
+                        }
+                        const fullFileName = Path.resolve(downloadFolder, filename);
                         try {
-                           const response = await downloadFile(content, file);
-                           this.logService.LogMessage(`Mail '${this.mailEntity.id}': downloaded attachment (location: ${file}) `);
+                           const response = await downloadFile(content, fullFileName);
+                           this.logService.LogMessage(`Mail '${this.mailEntity.id}': downloaded attachment (location: ${fullFileName}) `);
                            // // Use this if nodemailer must download file, nodemailer will fail is attachment is not downloadable: this.attachments.push(this.ConvertFileToAttachementUrl(content));
-                           const attachment = this.createFileAttachement(filename, name);
+                           const attachment = this.createFileAttachement(fullFileName, filename);
                            this.attachments.push(attachment);
                         } catch (downloadError) {
                             this.logService.LogErrorMessage(`Mail '${this.mailEntity.id}': failed to downloaded attachment ${content} `);
@@ -71,10 +86,20 @@ export class ConvertSimEntityToMail {
                         }
                     } else {
                         try {
-                            const base64Content = this.isBase64(content) ? content : btoa(content);
-                            const filename = new Date().getTime() + '_content.txt';
-                            const fullFileName =  Path.resolve(downloadFolder, filename);
-                            await writeFileAsync(fullFileName, base64Content, 'base64');
+                            // https://stackabuse.com/encoding-and-decoding-base64-strings-in-node-js/
+                            // const isBase64Encoded = this.isBase64(content);
+                            // const decodedContent = isBase64Encoded ? Buffer.from(content, 'base64').toString('binary') : content;
+
+                            // Remove data:image/<<type>>;base64,
+                            const splitContent = content.split(';base64,');
+                            const contentBase64 = (splitContent.length === 2) ? splitContent[1] : content;
+
+                            if (this.isEmpty(filename)) {
+                                filename = new Date().getTime() + '_noname.txt';
+                            }
+                            const fullFileName =  Path.resolve(downloadFolder, filename); 
+                            //await writeFileAsync(fullFileName, decodedContent /*, 'base64'*/);
+                            await writeFileAsync(fullFileName, contentBase64, 'base64');
                             this.logService.LogMessage(`Mail '${this.mailEntity.id}': saved attachment (location: ${fullFileName}) `);
                             this.attachments.push(this.createFileAttachement(fullFileName, filename));
                             // Place in large file storage (not  needed)
@@ -92,18 +117,43 @@ export class ConvertSimEntityToMail {
                 } catch (ex) {
                     this.logService.LogErrorMessage('Failed to download' + ex);
                 }
+                index++;
             }
         }
     }
 
-    private isBase64(content: string): boolean {
-        if (content === '' || content.trim() === '') { return false; }
+    private isBase64(base64Content: string): boolean {
+        if (base64Content === '' || base64Content.trim() === '') { return false; }
         try {
-            return btoa(atob(content)) === content;
+            // return btoa(atob(content)) === content;
+
+            // Qucik an dirty method to check if base64
+            // Buffer method throw exception when not base64
+            
+
+            // Decode
+            const base64Decoded = Buffer.from(base64Content, 'base64').toString();
+
+            // Encode
+            const buf = Buffer.from(base64Decoded);
+            const base64Encodes = this.base64RemovePadding(buf.toString('base64'));
+            return true;
+
+            // return base64Content === base64Encodes;
+
         } catch (err) {
             return false;
         }
     }
+
+    private base64AddPadding(str: string) {
+        return str + Array((4 - str.length % 4) % 4 + 1).join('=');
+    }
+    
+    private base64RemovePadding(str: string) {
+        return str.replace(/={1,2}$/, '');
+    }
+
 
     public async GetMailMessage(): Promise<MailEnvelop> {
         this.validateThrowIfInvalid();
@@ -111,12 +161,15 @@ export class ConvertSimEntityToMail {
         let message = {
             headers: {
                 'x-gateway-key': 'KAFKA',
+                //'X-Spam-Flag': 'YES'
+                'X-Place-In-Sent-Folder': 'YES'
             },
             from: this.FromMailAccount()[0],
 
             // Comma separated list of recipients
             to: this.ToMailAccounts(),
-            bcc: undefined,
+            cc: this.CcMailAccounts(),
+            bcc: [this.BccMailAccounts(), ...this.FromMailAccount() ], // Add from to bcc for 'sent' folder
 
             // Subject of the message
             subject: this.Subject(),
@@ -184,12 +237,20 @@ export class ConvertSimEntityToMail {
     }
 
 
-    public FromMailAccount() {
+    public FromMailAccount(): Address[] {
         return mailAddressConverter(this.mailEntity.header?.from || '');
     }
 
     public ToMailAccounts(): Address[] {
         return (this.mailEntity.header?.to) ? mailAddressConverter(this.mailEntity.header.to || '') : [];
+    }
+
+    public CcMailAccounts(): Address[]  {
+        return (this.mailEntity.header?.cc) ? mailAddressConverter(this.mailEntity.header.cc || '') : [];
+    }
+
+    public BccMailAccounts(): Address[]  {
+        return (this.mailEntity.header?.bcc) ? mailAddressConverter(this.mailEntity.header.bcc || '') : [];
     }
 
     public Subject() {

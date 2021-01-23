@@ -8,6 +8,9 @@ import { IConfigService } from './config-service';
 import { ILogService } from './log-service';
 import { emit } from 'cluster';
 
+import { GlobalConst } from './../global-const';
+
+
 // AVRO kafka schema's
 
 let path = require('path');
@@ -91,7 +94,8 @@ export class TestBedKafkaService extends EventEmitter implements ITestBedKafkaSe
       this.logService.LogMessage(`Start connecting to Kafka Server '${this.kafkaSettings.kafkaHost}'.`);
       this.adapter.connect();
     } else {
-      this.logService.LogMessage(`Connect to KAFKA diabled in configuration.`);
+      this.emit('ready');
+      this.logService.LogMessage(`Connect to KAFKA disabled in configuration.`);
     }
   }
 
@@ -103,13 +107,19 @@ export class TestBedKafkaService extends EventEmitter implements ITestBedKafkaSe
   // Received a message on KAFKA bus
   private HandleReceiveKafkaMessage(message: IAdapterMessage) {
     if (message.topic.startsWith('system_')) return;
-    const stringify = (m: string | Object) => typeof m === 'string' ? m : JSON.stringify(m, null, 2);
-    this.logService.LogMessage(`Received KAFKA message ${stringify(message.key)}: ${stringify(message.value)}`);
+    
     // Check topic name:
     switch (message.topic.toLowerCase()) {
       case this.Settings.mediaTopicName.toLowerCase():
-        this.receivedSimEnityPost++;
-        this.emit('SimulationEntityPostMsg', message.value as IPost);
+        const post =  message.value as IPost;
+        if  (post.owner === GlobalConst.mailOwner) {
+           this.logService.LogMessage(`Received KAFKA Simulation Entity Post message ${post.id}; ignore because mail gateway was sender`);
+        } else {
+           const stringify = (m: string | Object) => typeof m === 'string' ? m : JSON.stringify(m, null, 2);
+           this.logService.LogMessage(`Received KAFKA message ${stringify(message.key)}: ${stringify(message.value)}`);
+           this.receivedSimEnityPost++;
+           this.emit('SimulationEntityPostMsg', message.value as IPost);
+        }
         break;
       default:
         this.logService.LogMessage(`Received KAFKA topic ${message.topic}, ignore.`);
@@ -135,7 +145,7 @@ export class TestBedKafkaService extends EventEmitter implements ITestBedKafkaSe
             this.logService.LogErrorMessage('Fatal error sending KAFKA message: ' + err);
             // process.exit(1);
           } else {
-            this.logService.LogMessage(`Reply KAFKA: ${JSON.stringify(data, null, 2)} `);
+            this.logService.LogMessage(`Reply from KAFKA: ${JSON.stringify(data, null, 2)} `);
           }
         });
       });
