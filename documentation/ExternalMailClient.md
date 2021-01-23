@@ -4,4 +4,4 @@ It is possible to use external mail clients. In the example below thunderbird is
 
 
 
-![Kafa example message](/Images/ThunderbirdMailConfiguration.png)
+![Kafa example message](Images/ThunderbirdMailConfiguration.png)
