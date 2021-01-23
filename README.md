@@ -46,6 +46,7 @@ For this release all passwords for all e-mail accounts are the same. It is possi
 - [Mapping between KAFKA and MAIL server](documentation/Mapping.md)
 - [Configuration](documentation/Configuration.md)
 - [Sent folder](documentation/SentMailBox.md)
+- [External mail client](documentation/ExternalMailClient.md)
 
 ## Known limitations
 
