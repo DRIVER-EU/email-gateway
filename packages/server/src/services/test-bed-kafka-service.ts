@@ -6,7 +6,7 @@ import { ProduceRequest } from 'kafka-node';
 // Services:
 import { IConfigService } from './config-service';
 import { ILogService } from './log-service';
-import { emit } from 'cluster';
+// import { emit } from 'cluster';
 
 import { GlobalConst } from './../global-const';
 

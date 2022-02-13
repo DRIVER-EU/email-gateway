@@ -11,10 +11,10 @@ import { HttpClient } from "@angular/common/http";
 export class SendSimulationEntityPostComponent implements OnInit {
 
   private id: string = 'GUID_' + new Date().getTime();
-  private mailForm: FormGroup;
+  public mailForm: FormGroup;
   useKafka = false;
   useEmbeddedAttachment = false;
-  private post: any;
+  public post: any;
   largeFileServiceUrl = '';
 
   constructor(

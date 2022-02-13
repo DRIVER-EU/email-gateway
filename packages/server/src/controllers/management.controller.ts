@@ -1,5 +1,5 @@
 import { Controller, Get, Inject, Param, Req, Put, Body, Query, ValidationPipe, Post, HttpException, HttpStatus } from '@nestjs/common';
-import { ApiResponse, ApiOperation, ApiImplicitParam, ApiUseTags, ApiImplicitBody, ApiImplicitQuery } from '@nestjs/swagger';
+import { ApiResponse, ApiOperation, ApiParam, ApiTags, ApiBody, ApiQuery } from '@nestjs/swagger';
 import { ManagementService } from './management.service';
 import { MailData, SimulationEntityPostData, Statusresult, MailAccountsResultImpl, AddMailAccountResultImpl, DeleteMailAccountResultImpl, ResetResultImpl } from './../models/rest/rest-models';
 import { getErrorMessage } from './../helpers/exceptions';
@@ -7,7 +7,7 @@ import { getErrorMessage } from './../helpers/exceptions';
 
 import { IPost } from './../models/avro_generated/simulation_entity_post-value';
 import { MailServerException } from './../nestjs_exceptions/MailServerException';
-const uuidv4 = require('uuid/v4');
+const uuidv4 = require('uuid');
 
 /*
 
@@ -19,7 +19,7 @@ Annotations are for the swagger definition (the swagger component uses reflectio
 
 
 // REST controller
-@ApiUseTags('management')
+@ApiTags('management')
 @Controller('management')
 export class ManagementController {
 
@@ -27,7 +27,7 @@ export class ManagementController {
   }
   /******************************** SEND TEST MAIL ********************************************************/
   @ApiOperation({
-    title: 'Test JSON ISimulationEntityPost injection (direct or KAFKA)',
+    summary: 'Test JSON ISimulationEntityPost injection (direct or KAFKA)',
     description: '',
     operationId: 'TestSimulationEntityPost'
   })
@@ -56,7 +56,7 @@ export class ManagementController {
 
   /******************************** SEND TEST MAIL ********************************************************/
   @ApiOperation({
-    title: 'Send an e-mail to test mail server gateway',
+    summary: 'Send an e-mail to test mail server gateway',
     description: '',
     operationId: 'SendTestMail'
   })
@@ -97,7 +97,7 @@ export class ManagementController {
   }
   /********************************  GET STATUS  ********************************************************/
   @ApiOperation({
-    title: 'Get status',
+    summary: 'Get status',
     description: 'Get status of server',
     operationId: 'GetStatus',
   })
@@ -117,7 +117,7 @@ export class ManagementController {
 
   /********************************  GET MAIL ACOUNTS ********************************************************/
   @ApiOperation({
-    title: 'Get mail accounts',
+    summary: 'Get mail accounts',
     description: 'Get mail accounts',
     operationId: 'MailAccounts',
   })
@@ -140,17 +140,17 @@ export class ManagementController {
   }
   /*******************************************************************************************/
   @ApiOperation({
-    title: 'Add mail account',
+    summary: 'Add mail account',
     description: 'Add mail account to mail server (e.g. "user@world.com") ',
     operationId: 'AddAccount',
   })
-  @ApiImplicitQuery({
+  @ApiQuery({
     name: 'account',
     description: 'The mail account',
     required: true,
     type: String,
   })
-  @ApiImplicitQuery({
+  @ApiQuery({
     name: 'password',
     description: 'The mail account password',
     required: true,
@@ -168,11 +168,11 @@ export class ManagementController {
 
   /*******************************************************************************************/
   @ApiOperation({
-    title: 'Delete mail account',
+    summary: 'Delete mail account',
     description: 'Delete mail account to mail server "user@world.com" ',
     operationId: 'DeleteAccount',
   })
-  @ApiImplicitQuery({
+  @ApiQuery({
     name: 'account',
     description: 'The mail account',
     required: true,
@@ -190,7 +190,7 @@ export class ManagementController {
 
   /*******************************************************************************************/
   @ApiOperation({
-    title: 'Reset',
+    summary: 'Reset',
     description: 'Reset database',
     operationId: 'Reset',
   })

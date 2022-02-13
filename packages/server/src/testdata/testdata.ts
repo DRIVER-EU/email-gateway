@@ -1,7 +1,7 @@
 import { Attachment } from 'nodemailer/lib/mailer';
 import { IPost } from '../models/avro_generated/simulation_entity_post-value';
 
-const uuidv4 = require('uuid/v4');
+const uuidv4 = require('uuid');
 
 
 export const testPost: IPost = {

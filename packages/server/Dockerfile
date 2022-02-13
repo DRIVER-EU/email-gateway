@@ -1,6 +1,7 @@
 FROM node:latest AS builder
 RUN mkdir /build
 WORKDIR /build
+run npm install -g npm
 COPY . /build
 RUN npm i
 RUN npm run build

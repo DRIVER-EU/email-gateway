@@ -1,4 +1,4 @@
-import { simpleParser, ParsedMail } from 'mailparser';
+import { simpleParser, ParsedMail, AddressObject } from 'mailparser';
 import { IPost } from './../models/avro_generated/simulation_entity_post-value';
 import { uuid4 } from 'node-test-bed-adapter';
 import { uploadFileToLargeFileService } from './../helpers/upload';
@@ -31,7 +31,7 @@ export class ConvertMailToSimEntity {
             id: this.mail.messageId || uuid4(),
             header: {
                 from: (this.mail.from) ? this.mail.from.text : '',
-                to: (this.mail.to) ? this.mail.to.value.map(x => x.address) as string[] : undefined,
+                to: (this.mail.to) ? this.AddressObjectToString(this.mail.to) : undefined,
                 subject: this.mail.subject ?? '',
                 intro: undefined,
                 cc: undefined,
@@ -46,6 +46,15 @@ export class ConvertMailToSimEntity {
         return post;
     }
 
+    private isArray(x: any): boolean {
+        return !!x && x.constructor === Array;
+    }
+    private  AddressObjectToString( address: AddressObject | AddressObject[] ): string[] {
+
+        return this.isArray(address) ?
+        (address as AddressObject[]).flatMap(y => y.value).map(x  => x.address) as string[] :
+        (address as AddressObject).value.map(x  => x.address) as string[];
+    }
     private async uploadAttachmentsToLargeFileStorage() {
         if (this.mail.attachments) {
             this.attachmentUrls = {};

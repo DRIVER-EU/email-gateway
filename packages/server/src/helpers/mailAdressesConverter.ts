@@ -1,5 +1,5 @@
 
-import { Address  } from 'nodemailer/lib/mailer';
+import { Address } from 'nodemailer/lib/mailer';
 import mailAddressesParser = require('nodemailer/lib/addressparser');
 
 function isString(x: any): x is string {
@@ -7,8 +7,8 @@ function isString(x: any): x is string {
 }
 
 // Check if x is Address interface
-function isAddress(x: any): x is Address {
-    return (x as Address).address !== undefined;
+function isAddress(x: any): boolean {
+    return x.hasOwnProperty('address');
 }
 
 // Array.isArray function
@@ -49,9 +49,15 @@ export function mailAddressConverter(mailAddress:  string | Address | Array<stri
             return addresses;
         }
         if (isString(mailAddress)) return mailAddressStringConverter(mailAddress);
-        if (isAddress(mailAddress)) return [ mailAddress ];
+        if (isAddress(mailAddress)) return [ mailAddress as Address ];
     }
     return [];
+}
+
+export function convertAddress(x: mailAddressesParser.AddressOrGroup): string {
+    if (isAddress(x)) return (x as Address).address;
+    let grp = (x as mailAddressesParser.Group).group;
+    return convertAddress(grp);
 }
 
 export function mailAddressStringConverter(mailAddress:  string): Address[] {
@@ -61,10 +67,11 @@ export function mailAddressStringConverter(mailAddress:  string): Address[] {
             // Convert from addressparser.Address to nodemailer/lib/mailer.Address
             const mailAddress: Address = {
                 name: x.name,
-                address: x.address
+                address: convertAddress(x)
             };
             addresses.push(mailAddress);
         });
     }
     return addresses;
 }
+

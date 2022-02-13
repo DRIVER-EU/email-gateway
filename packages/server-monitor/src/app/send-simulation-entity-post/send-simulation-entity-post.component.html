@@ -34,5 +34,5 @@
 <br>
 <mat-checkbox [(ngModel)]="useEmbeddedAttachment" (ngModelChange)="useEmbeddedAttachmentChanged($event)">Include BLOB atachment (TNO logo)</mat-checkbox><br>
 <mat-checkbox [(ngModel)]="useKafka">Place message on KAFKA bus</mat-checkbox><br>
- <button class="btn-alignment" name="updateJSONbutton"  (click)="updateJSON($event)"><i class="material-icons">refresh</i> Update JSON</button>
+ <button class="btn-alignment" name="updateJSONbutton"  (click)="updateJSON()"><i class="material-icons">refresh</i> Update JSON</button>
 <pre>{{post | json}}</pre>

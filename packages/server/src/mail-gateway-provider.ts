@@ -36,7 +36,7 @@ export class MailGatewayProvider {
         this.mailGatewayService = new MailService(this.logService, this.configService, this.kafkaTestBedService, this.postfixService);
         this.kafkaTestBedService.on('ready', () => {
             // this.kafkaTestBedService.sendSimulationEntityPostToKafka(posts);
-            this.mailGatewayService .start(); 
+            this.mailGatewayService .start();
         });
         this.kafkaTestBedService.connectToKafka();
     }

@@ -110,8 +110,8 @@ export class MailServer2SimEntityPostManager  extends EventEmitter implements IM
             this.logService.LogMessage(`Foward mail from user '${(mail.from) ? mail.from.text : ''}' send at ${(<Date>mail.date).toISOString()} with id ${mail.messageId} to kafka`);
             try {
                 await this.sendMailToKafka(mail);
-            } catch (e) {
-                this.logService.LogErrorMessage(e);
+            } catch (ex) {
+                this.logService.LogErrorMessage(`${ex}`);
             }
 
         });

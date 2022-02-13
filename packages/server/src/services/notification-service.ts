@@ -3,23 +3,28 @@ import {
     SubscribeMessage,
     WebSocketGateway,
     WebSocketServer,
-    WsResponse,
+    WsResponse
 } from '@nestjs/websockets';
 import { OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect } from '@nestjs/websockets';
-import { Client, Server } from 'socket.io';
+import { Server } from 'socket.io';
+
 
 export interface INotificationService {
     sendLogMessage(text: string): void;
 }
 
 // TODO get server port from config
-@WebSocketGateway(9996)
+@WebSocketGateway(9996, {
+    cors: {
+      origin: '*',
+    }
+  })
 export class NotificationService implements OnGatewayConnection, OnGatewayDisconnect, OnGatewayInit {
 
     @WebSocketServer()
     server: Server;
 
-    wsClients: Client[] = [];
+    wsClients: any[] = [];
 
     constructor() {
         // Because of injection no params can be passed
@@ -29,7 +34,7 @@ export class NotificationService implements OnGatewayConnection, OnGatewayDiscon
     afterInit() {
     }
 
-    handleConnection(client: Client) {
+    handleConnection(client: any) {
         console.log(`New connection client ID: ${client.id}`);
         this.wsClients.push(client);
         this.BroadcastText('logmessage', `Client ID connected: ${client.id}`);

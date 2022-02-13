@@ -1,11 +1,11 @@
 
 
-const uuidv4 = require('uuid/v4');
+const uuidv4 = require('uuid');
 import { IPost } from './models/avro_generated/simulation_entity_post-value';
 
 export const posts: IPost[] = [
   {
-    id: uuidv4(),
+    id: uuidv4.v4(),
     name: 'TEST',
     owner: 'TEST',
     type: 'MAIL',

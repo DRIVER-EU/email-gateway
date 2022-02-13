@@ -90,6 +90,7 @@ export class ConvertSimEntityToMail {
                             // const isBase64Encoded = this.isBase64(content);
                             // const decodedContent = isBase64Encoded ? Buffer.from(content, 'base64').toString('binary') : content;
 
+                            // validUrl.isUri(content) work for data:image/<<type>>;base64,
                             // Remove data:image/<<type>>;base64,
                             const splitContent = content.split(';base64,');
                             const contentBase64 = (splitContent.length === 2) ? splitContent[1] : content;

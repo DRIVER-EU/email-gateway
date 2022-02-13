@@ -308,17 +308,17 @@ services:
     restart: unless-stopped
  
  
-  afteractionreview:
-    image: drivereu/after-action-review:latest
-    links:
-      - postgres
-      - broker
-      - schema_registry
-    ports:
-      - "8095:8095"
-    environment:
-      KAFKA_BROKER_URL: broker:9092
-      SCHEMA_REGISTRY_URL: http://schema_registry:3502
+#  afteractionreview:
+#    image: drivereu/after-action-review:latest
+#    links:
+#      - postgres
+#      - broker
+#      - schema_registry
+#    ports:
+#      - "8095:8095"
+#    environment:
+#      KAFKA_BROKER_URL: broker:9092
+#      SCHEMA_REGISTRY_URL: http://schema_registry:3502
   
   pgadmin:
     image: dpage/pgadmin4

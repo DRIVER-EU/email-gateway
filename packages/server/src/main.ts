@@ -25,7 +25,7 @@ export class MailGatewayServer {
   constructor() {
     this.StartNestServerAsync()
       .then((server: NestExpressApplication) => {
-        this.provider = server.get(MailGatewayProvider); // Injection cannot be done in constructor
+        this.provider = server.get('MailGatewayProvider'); // Injection cannot be done in constructor
         this.provider.SetServer(server);
       });
   }
@@ -34,7 +34,7 @@ export class MailGatewayServer {
   async StartNestServerAsync(): Promise<NestExpressApplication> {
     // Create the server
     const app = await NestFactory.create<NestExpressApplication>(AppModule, { cors: true /* enable preflight cors */ });
-    const configService = app.get(MailGatewayProvider).ConfigService;
+    const configService = app.get('MailGatewayProvider').ConfigService;
 
     // Add response header to all incoming requests
     // Use express from this

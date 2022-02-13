@@ -1,4 +1,4 @@
-import { ApiModelProperty } from '@nestjs/swagger';
+import { ApiProperty } from '@nestjs/swagger';
 import { AddMailAccountResult, MailAccountsResult, DeleteMailAccountResult, ResetResult } from './../../../swagger_codegenerator/generated_code/api';
 
 // This file is not generated and can be edited!
@@ -7,7 +7,7 @@ export class SimulationEntityPostData {
     constructor(simulationEntityPostJson: string) {
         this.PostAsJson = simulationEntityPostJson;
     }
-    @ApiModelProperty({ required: true })
+    @ApiProperty({ required: true })
     public PostAsJson: string;
 }
 
@@ -20,13 +20,13 @@ export class MailData {
         this.Content = content;
     }
 
-    @ApiModelProperty({ required: true })
+    @ApiProperty({ required: true })
     public From: string;
-    @ApiModelProperty({ required: true })
+    @ApiProperty({ required: true })
     public To: string;
-    @ApiModelProperty({ required: true })
+    @ApiProperty({ required: true })
     public Subject: string;
-    @ApiModelProperty({ required: true })
+    @ApiProperty({ required: true })
     public Content: string;
 }
 
@@ -36,32 +36,32 @@ export class Statusresult {
         this.StatusAsJson = status;
     }
 
-    @ApiModelProperty({ required: true })
+    @ApiProperty({ required: true })
     public StatusAsJson: string;
 }
 
 
 export class MailAccountsResultImpl implements MailAccountsResult {
-    @ApiModelProperty({ required: true, isArray: true, type: String })
+    @ApiProperty({ required: true, isArray: true, type: String })
     public Accounts: string[];
 }
 
 // tslint:disable-next-line: max-classes-per-file
 export class AddMailAccountResultImpl implements AddMailAccountResult {
-    @ApiModelProperty({ required: true, type: String })
+    @ApiProperty({ required: true, type: String })
     public Msg: string;
 }
 
 
 // tslint:disable-next-line: max-classes-per-file
 export class DeleteMailAccountResultImpl implements DeleteMailAccountResult {
-    @ApiModelProperty({ required: true, type: String })
+    @ApiProperty({ required: true, type: String })
     public Msg: string;
 }
 
 // tslint:disable-next-line: max-classes-per-file
 export class ResetResultImpl implements ResetResult {
-    @ApiModelProperty({ required: true, type: String })
+    @ApiProperty({ required: true, type: String })
     public Msg: string;
 }
 
