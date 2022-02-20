@@ -6,7 +6,7 @@ const uuidv4 = require('uuid');
 
 export const testPost: IPost = {
     type: 'MAIL',
-    id: uuidv4(),
+    id: uuidv4.v4(),
     header: {
         date: new Date('2019-12-11T10:20:30Z').getTime(), /* EPOCH TIME (msec since 1970, 1 jan) */
         from: 'Person a <a@demo.com>',

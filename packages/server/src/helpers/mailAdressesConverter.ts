@@ -57,7 +57,7 @@ export function mailAddressConverter(mailAddress:  string | Address | Array<stri
 export function convertAddress(x: mailAddressesParser.AddressOrGroup): string {
     if (isAddress(x)) return (x as Address).address;
     let grp = (x as mailAddressesParser.Group).group;
-    return convertAddress(grp);
+    return convertAddress(grp[0]); // todo loop over all groups
 }
 
 export function mailAddressStringConverter(mailAddress:  string): Address[] {

@@ -68,7 +68,7 @@ export class ManagementController {
   @Put('SendMail')
   sendTestMail(@Query('useKafka') useKafka: boolean, @Query() all: any, @Body() testMail: MailData): String | void {
     let mediaPost = {
-      id: uuidv4(),
+      id: uuidv4.v4(),
       body: testMail.Content,
       header: {
         from: testMail.From,
