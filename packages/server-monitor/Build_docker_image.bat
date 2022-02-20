@@ -1,2 +1,2 @@
-docker build -t mailmonitor .
+docker build -t drivereu/driver-mailmonitor .
 pause

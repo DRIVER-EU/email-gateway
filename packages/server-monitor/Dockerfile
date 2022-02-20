@@ -1,23 +1,9 @@
-FROM node:latest 
-
+FROM node:latest AS builder
+COPY . ./app
 WORKDIR /app
+RUN npm i
+RUN $(npm bin)/ng build --base-href /mailmonitor/
 
-# add `/app/node_modules/.bin` to $PATH
-ENV PATH /app/node_modules/.bin:$PATH
-
-RUN npm install -g npm
-
-# install and cache app dependencies
-COPY package.json /app/package.json
-
-
-# RUN npm install -g @angular/cli
-
-# add app
-COPY . /app
-
-RUN npm install
-
-# start app
-CMD ng serve --host 0.0.0.0
-# CMD /bin/bash
+FROM nginx:latest
+COPY ./index.html /usr/share/nginx/html/index.html
+COPY --from=builder /app/dist/server-monitor/ /usr/share/nginx/html/mailmonitor
