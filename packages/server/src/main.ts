@@ -11,6 +11,8 @@ import { MailGatewayProvider } from './mail-gateway-provider';
 let path = require('path');
 let express = require('express');
 
+const subpath = 'mailgateway';
+
 /* Mail Gateway Server
 
 Creates the webserver NEST.JS (uses express under the hood) and
@@ -34,6 +36,10 @@ export class MailGatewayServer {
   async StartNestServerAsync(): Promise<NestExpressApplication> {
     // Create the server
     const app = await NestFactory.create<NestExpressApplication>(AppModule, { cors: true /* enable preflight cors */ });
+	
+	// Needed for proxy
+	app.setGlobalPrefix(subpath);
+	
     const configService = app.get('MailGatewayProvider').ConfigService;
 
     // Add response header to all incoming requests
@@ -60,8 +66,8 @@ export class MailGatewayServer {
     const publicDirectory: string = path.join(process.cwd(), 'public');
     // const publicDirectory = join(__dirname, '..', 'public');
 
-    app.use('/public', express.static(publicDirectory));
-    console.log(`'http://localhost:${configService.NestServerPortNumber}/public': Host files from '${publicDirectory}'`);
+    app.use(`/${subpath}/public`, express.static(publicDirectory));
+    console.log(`'http://localhost:${configService.NestServerPortNumber}/${subpath}/public': Host files from '${publicDirectory}'`);
 
     // Create swagger documentation
      const options = new DocumentBuilder()
@@ -71,9 +77,9 @@ export class MailGatewayServer {
       .addTag('Mail Server Gateway')
       .build();
     const document = SwaggerModule.createDocument(app, options);
-    SwaggerModule.setup('api', app, document); // http://<host>:<port>/api
-    console.log(`'http://localhost:${configService.NestServerPortNumber}/api': OpenApi (swagger) documentation.`);
-    console.log(`'http://localhost:${configService.NestServerPortNumber}/api-json': OpenApi (swagger) definition. `);
+    SwaggerModule.setup(`${subpath}/api`, app, document); // http://<host>:<port>/api
+    console.log(`'http://localhost:${configService.NestServerPortNumber}/${subpath}/api': OpenApi (swagger) documentation.`);
+    console.log(`'http://localhost:${configService.NestServerPortNumber}/${subpath}/api-json': OpenApi (swagger) definition. `);
 
 
     // Start server

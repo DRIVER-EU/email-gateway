@@ -64,7 +64,8 @@ export class UserManagementComponent implements OnInit {
   }
 
   openAccount(accountName: string) {
-    window.open(`http://localhost/?_user=${accountName}`, '_blank');
+    const hostname = window.location.host;
+    window.open(`http://${hostname}/webmail/?_user=${accountName}`, '_blank');
   }
   reset() {
     this.mailGatewayService.reset()

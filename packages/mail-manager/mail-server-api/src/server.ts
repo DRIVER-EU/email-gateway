@@ -6,6 +6,7 @@ import { NestExpressApplication } from '@nestjs/platform-express';
 import { Express } from 'express';
 import { join } from 'path';
 import { Inject } from '@nestjs/common';
+import * as express from 'express';
 
 // var path = require('path');
 // var express = require('express');
@@ -13,6 +14,8 @@ import { Inject } from '@nestjs/common';
 // var fs = require('fs');
 // var util = require('util');
 import log4js = require('log4js');
+
+const subpath = 'mailapi';
 
 log4js.configure({
   appenders: { mailApi: { type: 'file', filename: 'mail_api.log' } },
@@ -40,11 +43,14 @@ export class Server {
     // Create the server
     const port = process.env.MailServerApiPort || 3000;
 
-    logger.info(`API Mail Server REST interface started on port ${port}. ` );
+    logger.info(`API Mail Server REST interface started on port ${port}\${subpath}. ` );
 
     const app = await NestFactory.create<NestExpressApplication>(AppModule, { cors: true /* enable preflight cors */ });
- 
-    app.useStaticAssets(join(__dirname, 'public'));
+ 	// Needed for proxy
+	app.setGlobalPrefix(subpath);
+	
+    // app.useStaticAssets(join(__dirname, 'public'));
+	app.use(`/${subpath}`, express.static(join(__dirname, 'public')));
 
     // Add response header to all incomming requests
     // Use express from this
@@ -63,9 +69,9 @@ export class Server {
       .addTag('Mail server')
       .build();
     const document = SwaggerModule.createDocument(app, options);
-    SwaggerModule.setup('api', app, document); // http://<host>:<port>/api
-    // console.log(`'http://localhost:{port}}/api': OpenApi (swagger) documentation.`);
-    // console.log(`'http://localhost:{port}}/api-json': OpenApi (swagger) definition. `);
+    SwaggerModule.setup(`${subpath}/api`, app, document); // http://<host>:<port>/api
+     console.log(`'http://localhost:${port}}/${subpath}/api': OpenApi (swagger) documentation.`);
+     console.log(`'http://localhost:${port}}/${subpath}/api-json': OpenApi (swagger) definition. `);
 
     // Start server
    

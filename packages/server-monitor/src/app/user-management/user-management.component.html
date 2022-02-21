@@ -19,11 +19,12 @@
   </form>
   <hr>
   <div class="AccountList">
+    All e-mail accounts have password 'default'.
     <h4>Mail accounts</h4>
     <mat-list>
       <mat-list-item *ngFor="let account of mailAccounts">
         <button (click)="deleteAccount(account)"><i class="material-icons">delete</i></button>&nbsp; <button
-          (click)="openAccount(account)">Open {{account}}</button>
+          (click)="openAccount(account)">Open '{{account}}'</button>
       </mat-list-item>
     </mat-list>
   </div>
