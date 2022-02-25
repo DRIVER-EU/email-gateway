@@ -1,28 +1,23 @@
 version: '3'
 services:
   webmail:
-    image: driver-roundcube
+    image: drivereu/driver-roundcube:latest
     hostname: webmail
     container_name: webmail
     build:
       context: ./../roundcube_driver-eu
       dockerfile: Dockerfile
     environment:
-    - ROUNDCUBEMAIL_DEFAULT_HOST=10.5.0.5
-    - ROUNDCUBEMAIL_SMTP_SERVER=10.5.0.5
+    - ROUNDCUBEMAIL_DEFAULT_HOST=${HOSTNAME}
+    - ROUNDCUBEMAIL_SMTP_SERVER=${HOSTNAME}
     - ROUNDCUBEMAIL_DEFAULT_PORT=143
     - ROUNDCUBEMAIL_SMTP_PORT=25
     ports:
-    - "80:80"
-    networks:
-      static-network:
-        ipv4_address: 10.5.0.6
-      default:
-      backend:
+    - "5000:80"
     depends_on:
     - mailserver
   mailserver:
-    image: driver-mailserver
+    image: drivereu/driver-mailserver:latest
     hostname: ${HOSTNAME}
     domainname: ${DOMAINNAME}
     container_name: ${CONTAINER_NAME}
@@ -35,11 +30,6 @@ services:
     build:
       context: ./../../packages/mail-manager/mail-server-api
       dockerfile: Dockerfile
-    networks:
-      static-network:
-        ipv4_address: 10.5.0.5
-      default:
-      backend:
     volumes:
      - maildata:/var/mail
      - mailstate:/var/mail-state
@@ -117,7 +107,7 @@ services:
     - SYS_PTRACE
     restart: always
   mailgateway:
-    image: driver-mailgateway
+    image: drivereu/driver-mailgateway:latest
     container_name: mailgateway
     build:
       context: ./../../packages/server
@@ -128,11 +118,11 @@ services:
     # REST api 
     - "7891:7891"
     environment:
-    - ApiMailServerUrl=http://10.5.0.5:3000
+    - ApiMailServerUrl=http://${HOSTNAME}:3000
     - LargeFileServiceUrl=http://large_file_service:9090/upload
-    - SmtpHost=10.5.0.5
+    - SmtpHost=${HOSTNAME}
     - SmtpPort=25
-    - IMapHost=10.5.0.5
+    - IMapHost=${HOSTNAME}
     - IMapPort=993
     - kafka_kafkaHost=broker:9092
     - kafka_schemaRegistryUrl=schema_registry:3502
@@ -144,28 +134,19 @@ services:
     - broker
     - large_file_service
     - schema_registry
-    networks:
-      static-network:
-        ipv4_address: 10.5.0.10   
-      default:
     restart: always
   mailmonitor:
-    image: driver-mailmonitor
+    image: drivereu/driver-mailmonitor:latest
     container_name: mailmonitor
     build:
       context: ./../../packages/server-monitor
       dockerfile: Dockerfile       
     ports:
     - "4200:4200"
-    links:
-    - mailgateway
-    depends_on:
-    - mailgateway
-    networks:
-      static-network:
-        ipv4_address: 10.5.0.11  
-      default:
-      backend:
+#    links:
+#    - mailgateway
+#    depends_on:
+#    - mailgateway
     restart: always
     
   silent-producer:
@@ -180,9 +161,6 @@ services:
       SCHEMA_FOLDER: /src/schemas
       PRODUCE_TOPICS: simulation_time_mgmt,system_topic_access_invite,system_heartbeat,system_logging
     restart: on-failure
-    networks:
-      - default
-      - backend
     volumes:
       - ./schemas/avro-schemas:/src/schemas
   zookeeper:
@@ -190,9 +168,6 @@ services:
     hostname: zookeeper
     ports:
       - '3500:3500'
-    networks:
-      - default
-      - backend
     environment:
       ZOOKEEPER_CLIENT_PORT: 3500
       ZOOKEEPER_TICK_TIME: 2000
@@ -223,9 +198,6 @@ services:
       - broker
     ports:
       - '3502:3502'
-    networks:
-      - default
-      - backend
     environment:
       SCHEMA_REGISTRY_HOST_NAME: schema_registry
       SCHEMA_REGISTRY_LISTENERS: 'http://0.0.0.0:3502'
@@ -241,9 +213,6 @@ services:
       - broker
     ports:
       - '8082:8082'
-    networks:
-      - default
-      - backend
     environment:
       KAFKA_REST_HOST_NAME: kafka_rest
       KAFKA_REST_BOOTSTRAP_SERVERS: 'PLAINTEXT://broker:9092'
@@ -261,9 +230,6 @@ services:
       - kafka_rest
     ports:
       - '3600:8000'
-    networks:
-      - default
-      - backend
     environment:
       KAFKA_REST_PROXY_URL: 'http://kafka_rest:8082'
       PROXY: 'true'
@@ -275,9 +241,6 @@ services:
       - schema_registry
     ports:
       - '3601:8000'
-    networks:
-      - default
-      - backend
     environment:
       SCHEMAREGISTRY_URL: 'http://schema_registry:3502'
       PROXY: 'true'
@@ -287,9 +250,6 @@ services:
     hostname: large_file_service
     ports:
       - '9090:9090'
-    networks:
-      - default
-      - backend
     environment:
       HOST: localhost
       PORT: 9090
@@ -373,12 +333,3 @@ volumes:
     driver: local
   postgres-data:
   trial-data:
-networks:
-  static-network:
-    driver: bridge
-    ipam:
-     config:
-       - subnet: 10.5.0.0/16
-         gateway: 10.5.0.1
-  backend:
-    driver: "bridge"
