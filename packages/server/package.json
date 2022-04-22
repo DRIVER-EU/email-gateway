@@ -42,7 +42,7 @@
     "imap": "^0.8.19",
     "install": "^0.13.0",
     "mailparser": "^3.4.0",
-    "nconf": "^0.11.3",
+    "nconf": "^0.11.4",
     "node-test-bed-adapter": "^2.2.3",
     "nodemailer": "^6.7.2",
     "portable-fetch": "^3.0.0",
