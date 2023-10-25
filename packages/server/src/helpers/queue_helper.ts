@@ -1,23 +1,23 @@
 export class Queue<T> {
-    _queue: T[];
+  _queue: T[];
 
-    constructor(queue?: T[]) {
-      this._queue = queue || [];
-   }
+  constructor(queue?: T[]) {
+    this._queue = queue || [];
+  }
 
-   enqueue(item: T) {
-     this._queue.push(item);
-   }
+  enqueue(item: T) {
+    this._queue.push(item);
+  }
 
-   dequeue(): T | undefined {
-     return (this._queue) ? this._queue.shift() : undefined;
-   }
+  dequeue(): T | undefined {
+    return this._queue ? this._queue.shift() : undefined;
+  }
 
-   clear() {
-     this._queue = [];
-   }
+  clear() {
+    this._queue = [];
+  }
 
-   get count(): number {
-     return this._queue.length;
-   }
+  get count(): number {
+    return this._queue.length;
+  }
 }

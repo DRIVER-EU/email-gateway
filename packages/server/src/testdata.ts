@@ -1,28 +1,24 @@
-
-
-const uuidv4 = require('uuid');
-import { IPost } from './models/avro_generated/simulation_entity_post-value';
+import { IPost } from "./models/avro_generated/simulation_entity_post-value.js";
+import * as uuidv4 from "uuid";
 
 export const posts: IPost[] = [
   {
     id: uuidv4.v4(),
-    name: 'TEST',
-    owner: 'TEST',
-    type: 'MAIL',
+    name: "TEST",
+    owner: "TEST",
+    type: "MAIL",
     header: {
       date: Date.now(),
-      from: 'sender@dummy.com',
-      to: ['a@b.com', 'c@d.com'],
+      from: "sender@dummy.com",
+      to: ["a@b.com", "c@d.com"],
       cc: null,
       bcc: null,
       intro: undefined,
-      subject: 'testMail.Subject',
+      subject: "testMail.Subject",
       location: undefined,
       attachments: undefined,
     },
     timestamp: Date.now(),
-    body: `Test message`
+    body: `Test message`,
   },
-
 ];
-

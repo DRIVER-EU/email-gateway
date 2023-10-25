@@ -1,4 +1,3 @@
-
 /*
 Service:
 - Convert ISimulationEntityPost messages from KAFKA bus to mail server as e-mails
@@ -6,30 +5,16 @@ Service:
 */
 
 // Services:
-import { IConfigService } from './config-service';
-import { ILogService } from './log-service';
-import { ITestBedKafkaService } from './test-bed-kafka-service';
-import { IPostfixMailServerManagementService } from './postfix-mailserver-management';
-import { IPost } from './../models/avro_generated/simulation_entity_post-value';
-
-
-import { EventEmitter } from 'events';
-
-import { SimEntityPost2MailServerManager } from '../workers/SimEntityPost2MailServerManager';
-import { MailServer2SimEntityPostManager } from '../workers/MailServer2SimEntityPostManager';
-
-import { GlobalConst } from './../global-const';
-
-import { testPost } from '../testdata/testdata';
-
-const Fs = require('fs');
-const Path = require('path');
-const Axios = require('axios');
-const Request = require('request');
-import Url = require('url');
+import { IConfigService } from "./config-service.js";
+import { ILogService } from "./log-service.js";
+import { ITestBedKafkaService } from "./test-bed-kafka-service.js";
+import { IPostfixMailServerManagementService } from "./postfix-mailserver-management.js";
+import { IPost } from "../models/avro_generated/simulation_entity_post-value.js";
+import { SimEntityPost2MailServerManager } from "../workers/SimEntityPost2MailServerManager.js";
+import { MailServer2SimEntityPostManager } from "../workers/MailServer2SimEntityPostManager.js";
+import { GlobalConst } from "../global-const.js";
 
 // https://community.nodemailer.com/
-
 
 // Configuration settings for this service
 export interface ISmtpSettings {
@@ -42,21 +27,13 @@ export interface IMapSettings {
   IMapPort: number;
 }
 
-
 export interface IMailService {
   enqueueSimulationEntityPost(msg: IPost): void;
   reset(): void;
   start(): void;
 }
 
-import axios = require('axios');
-
-
-
 export class MailService implements IMailService {
-
-
-
   private exportToMailManager: SimEntityPost2MailServerManager;
   private exportToKafkaManager: MailServer2SimEntityPostManager;
 
@@ -64,26 +41,37 @@ export class MailService implements IMailService {
     private logService: ILogService,
     private configService: IConfigService,
     private kafkaService: ITestBedKafkaService,
-    private postfixService: IPostfixMailServerManagementService) {
-
+    private postfixService: IPostfixMailServerManagementService
+  ) {
     logService.LogMessage(`Start e-mail service`);
 
-
     const smtp = configService.SmtpSettings;
-    logService.LogMessage(`SMTP connetion parameters ${smtp.SmtpHost}@${smtp.SmtpPort}`);
+    logService.LogMessage(
+      `SMTP connetion parameters ${smtp.SmtpHost}@${smtp.SmtpPort}`
+    );
     const imap = configService.IMapSettings;
-    logService.LogMessage(`IMAP connetion parameters ${imap.IMapHost}@${imap.IMapPort}`);
+    logService.LogMessage(
+      `IMAP connetion parameters ${imap.IMapHost}@${imap.IMapPort}`
+    );
 
-    this.exportToMailManager = new SimEntityPost2MailServerManager(this.logService, this.configService, this.postfixService);
-    this.exportToKafkaManager = new MailServer2SimEntityPostManager(this.logService, this.configService, this.postfixService);
-    this.kafkaService.on('SimulationEntityPostMsg', msg => this.HandleSimulationEntityPostMsg(msg));
-    this.exportToKafkaManager.on('OnPost', post => this.handleConvertedMailToSimulationEntityPost(post));
+    this.exportToMailManager = new SimEntityPost2MailServerManager(
+      this.logService,
+      this.configService,
+      this.postfixService
+    );
+    this.exportToKafkaManager = new MailServer2SimEntityPostManager(
+      this.logService,
+      this.configService,
+      this.postfixService
+    );
+    this.kafkaService.on("SimulationEntityPostMsg", (msg) =>
+      this.HandleSimulationEntityPostMsg(msg)
+    );
+    this.exportToKafkaManager.on("OnPost", (post) =>
+      this.handleConvertedMailToSimulationEntityPost(post)
+    );
 
-
-
-
-     // this.exportToMailManager.enqueue(testPost);
-
+    // this.exportToMailManager.enqueue(testPost);
   }
 
   public start() {
@@ -94,7 +82,9 @@ export class MailService implements IMailService {
 
   private HandleSimulationEntityPostMsg(msg: IPost) {
     if (!msg) return;
-    this.logService.LogMessage(`Place SimulationEntityPost ${msg.id ||  '-'} in processing queue`);
+    this.logService.LogMessage(
+      `Place SimulationEntityPost ${msg.id || "-"} in processing queue`
+    );
     this.enqueueSimulationEntityPost(msg);
   }
 
@@ -104,28 +94,34 @@ export class MailService implements IMailService {
   }
 
   public enqueueSimulationEntityPost(msg: IPost) {
-    if (msg.id === 'RESET_SCENARIO_REMOVE_ALL') {
-      this.logService.LogErrorMessage(`Received CLEAR mailserver command, clear mailsever`);
+    if (msg.id === "RESET_SCENARIO_REMOVE_ALL") {
+      this.logService.LogErrorMessage(
+        `Received CLEAR mailserver command, clear mailsever`
+      );
       this.reset();
-    } else if  (msg.owner === GlobalConst.mailOwner) {
-        /* prevent handling messages injecten by this service */
-    } else if (msg.type?.toLocaleLowerCase() === 'mail') {
-        this.exportToMailManager.enqueue(msg); // queue for processing
-        this.logService.LogMessage(`Received KAFKA 'SimulationEntityPost' message, start processing: ${JSON.stringify(msg, null, 3)}`);
+    } else if (msg.owner === GlobalConst.mailOwner) {
+      /* prevent handling messages injecten by this service */
+    } else if (msg.type?.toLocaleLowerCase() === "mail") {
+      this.exportToMailManager.enqueue(msg); // queue for processing
+      this.logService.LogMessage(
+        `Received KAFKA 'SimulationEntityPost' message, start processing: ${JSON.stringify(
+          msg,
+          null,
+          3
+        )}`
+      );
     } else {
       // This is allowed, since not all messages are mails
     }
   }
 
-
-   public reset() {
+  public reset() {
     this.exportToMailManager.reset();
     this.exportToKafkaManager.reset();
-    this.postfixService.reset()
-      .catch(error => {
-        this.logService.LogErrorMessage(`Failed to reset the mailserver (${error}).`);
-      });
-   }
-
-
+    this.postfixService.reset().catch((error) => {
+      this.logService.LogErrorMessage(
+        `Failed to reset the mailserver (${error}).`
+      );
+    });
+  }
 }

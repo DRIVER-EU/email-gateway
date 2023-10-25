@@ -1,12 +1,12 @@
-FROM node:latest AS builder
+FROM node:18.18.2-alpine3.18 AS builder
 RUN mkdir /build
 WORKDIR /build
-run npm install -g npm
+RUN npm install -g npm
 COPY . /build
 RUN npm i
 RUN npm run build
 
-FROM node:latest
+FROM node:18.18.2-alpine3.18
 RUN mkdir -p /app
 # Done with ENV variables: COPY --from=builder /build/gateway-config.json /app/gateway-config.json
 COPY --from=builder /build/dist /app/dist
